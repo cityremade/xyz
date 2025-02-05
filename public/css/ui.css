@@ -74,10 +74,16 @@ html.dark-mode {
     }
   }
   .primary-colour {
-    color: var(--dm-color-on);
+    color: var(--color-light);
     &.active {
-      color: var(--dm-color-light);
+      color: var(--color-on);
     }
+  }
+  .no-colour {
+    color: var(--color-no);
+  }
+  .ok-colour {
+    color: var(--color-ok);
   }
   .bg-light-tertiary {
     background-color: var(--dm-color-dark-faded);
@@ -2230,6 +2236,37 @@ dialog {
       width: 50px;
       height: 50px;
       background-color: var(--color-no);
+    }
+  }
+}
+
+/* public/css/layout/_top_toolbar.css */
+#ctrl-tabs {
+  height: auto;
+  padding: 0.5em;
+  width: 100%;
+  display: flex;
+  & > div {
+    flex-grow: 1;
+    font-size: 2em;
+  }
+}
+#ctrl-panel {
+  height: calc(100% - 50px);
+  overflow-y: auto;
+  & > div {
+    display: none;
+    padding: 10px;
+    &.active {
+      display: block;
+    }
+  }
+}
+@media only screen and (min-width: 768px) {
+  #ctrl-panel {
+    transform: rotateY(180deg);
+    & > div {
+      transform: rotateY(180deg);
     }
   }
 }

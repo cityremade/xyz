@@ -66,32 +66,6 @@
         z-index: 9999;
       }
 
-      #ctrl-tabs {
-        height: auto;
-        padding: 0.5em;
-        width: 100%;
-        display: flex;
-      }
-
-      #ctrl-tabs > div {
-        flex-grow: 1;
-        font-size: 2em;
-      }
-
-      #ctrl-panel {
-        height: calc(100% - 50px);
-        overflow-y: auto;
-      }
-
-      #ctrl-panel > div {
-        display: none;
-        padding: 10px;
-      }
-
-      #ctrl-panel > div.active {
-        display: block;
-      }
-
       .bg-icon.mapp {
         background-image: url('https://geolytix.github.io/public/mapp_v4/emblem.svg');
       }
@@ -124,14 +98,6 @@
 
         .map-attribution {
           padding-left: 4em;
-        }
-
-        #ctrl-panel {
-          transform: rotateY(180deg);
-        }
-
-        #ctrl-panel > div {
-          transform: rotateY(180deg);
         }
 
         #ctrls {
@@ -191,21 +157,7 @@
 
     <div id="ctrls-divider"></div>
 
-    <div id="ctrls" class="lighter-background">
-      <div id="ctrl-tabs" class="hover">
-        <div data-id="layers" class="active material-symbols-outlined">
-          layers
-        </div>
-        <div data-id="locations" class="material-symbols-outlined">
-          location_on
-        </div>
-      </div>
-
-      <div id="ctrl-panel">
-        <div id="layers" class="active"></div>
-        <div id="locations"></div>
-      </div>
-    </div>
+    <div id="ctrls" class="lighter-background"></div>
 
     <script type="module">
       console.log(`MAPP v${mapp.version}`);
@@ -287,32 +239,40 @@
         },
       });
 
+      const topToolbarContainer = document.getElementById('ctrls');
+
+      const topToolbar = mapp.ui.elements.toolbar({
+        target: topToolbarContainer,
+        elements: [
+          {
+            data_id: 'logout',
+            icon_name: 'logout',
+            href: '?logout=true',
+            css_class: 'no-colour',
+          },
+          {
+            data_id: 'layers',
+            icon_name: 'layers',
+          },
+          {
+            data_id: 'locations',
+            icon_name: 'location_on',
+            callback: (e) => {
+              const gazetteerInput = document.getElementById('gazetteerInput');
+              gazetteerInput &&
+                window.innerWidth > 768 &&
+                gazetteerInput.focus();
+            },
+          },
+          {
+            data_id: 'test_tab',
+            icon_name: 'home',
+          },
+        ],
+      });
+
       const locationsTab = document.getElementById('locations');
       const layersTab = document.getElementById('layers');
-
-      const tabs = document.querySelectorAll('#ctrl-tabs > div');
-      const tabPanels = document.querySelectorAll('#ctrl-panel > div');
-
-      tabs.forEach((tab) => {
-        // Set help text from dictionary.
-        tab.title = mapp.dictionary[tab.dataset.id];
-
-        tab.onclick = (e) => {
-          // Change active class for the tab.
-          tabs.forEach((el) => el.classList.remove('active'));
-          e.target.classList.add('active');
-
-          // Change active class for the panel.
-          tabPanels.forEach((el) => el.classList.remove('active'));
-          document.getElementById(e.target.dataset.id).classList.add('active');
-
-          // Put focus on the gazetteer if the locations tab is activated.
-          if (e.target.dataset.id === 'locations') {
-            let gazetteerInput = document.getElementById('gazetteerInput');
-            gazetteerInput && window.innerWidth > 768 && gazetteerInput.focus();
-          }
-        };
-      });
 
       const tabview = document.getElementById('Tabview');
 

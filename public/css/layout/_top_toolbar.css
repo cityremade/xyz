@@ -1,0 +1,35 @@
+#ctrl-tabs {
+  height: auto;
+  padding: 0.5em;
+  width: 100%;
+  display: flex;
+
+  & > div {
+    flex-grow: 1;
+    font-size: 2em;
+  }
+}
+
+#ctrl-panel {
+  height: calc(100% - 50px);
+  overflow-y: auto;
+
+  & > div {
+    display: none;
+    padding: 10px;
+
+    &.active {
+      display: block;
+    }
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  #ctrl-panel {
+    transform: rotateY(180deg);
+
+    & > div {
+      transform: rotateY(180deg);
+    }
+  }
+}

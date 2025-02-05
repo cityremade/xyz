@@ -21,11 +21,19 @@ html.dark-mode {
   /* begin colour classes */
 
   .primary-colour {
-    color: var(--dm-color-on);
+    color: var(--color-light);
 
     &.active {
-      color: var(--dm-color-light);
+      color: var(--color-on);
     }
+  }
+
+  .no-colour {
+    color: var(--color-no);
+  }
+
+  .ok-colour {
+    color: var(--color-ok);
   }
 
   .bg-light-tertiary {
