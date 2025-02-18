@@ -53,31 +53,50 @@
       }
 
       .menu {
+
         position: fixed;
         top: 0.5em;
         left: 0.5em;
         z-index: 1;
         opacity: 0.95;
 
-        li {
-            margin: 0.2em 0;
-        
+        & > ul  li {
+           margin: 0.2em 0;
+           position: relative;
+        }
+
+        .layers {
+            background-color: #4682B4;
+            color: var(--color-light);
+        }
+
+        .themes {
+            background-color: #FF69B4;
+            color: var(--color-off-black);
+        }
+
+        .tools {
+            background-color: #FFA500;
+            color: var(--color-off-black);
+        }
+
+        button, div.app {
+            cursor: pointer;
+            border-radius: 0.2em;
+            box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+
+            & > * {
+                pointer-events: none;
+            }
+
+            &:hover { 
+                transform: scale(1.01); 
+            }
         }
 
         .app {
-          cursor: pointer;
           width: 5em;
           height: 5em;
-          border-radius: 0.2em;
-          box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-
-          & > * {
-            pointer-events: none;
-          }
-
-          &:hover { 
-            transform: scale(1.01); 
-          }
 
           &.mapp-core {
             background-color: #F2F2E3;
@@ -101,21 +120,12 @@
             }
           }
 
-          &.layers {
-            background-color: #4682B4;
-          }
-
-          &.themes {
-            background-color: #FF69B4;
-          }
-
-          &.tools {
-            background-color: #FFA500;
-          }
-
         }
 
         .submenu {
+            position: absolute;
+            left: 5.5em;
+            top: -0.2em; /* to align with spacing */
             display: inline-block;
             transition: all 0.25s;
             transition-behavior: allow-discrete;
@@ -125,13 +135,22 @@
                 opacity: 0;
             }
 
-            li {
-                display: inline;
+            button {
+                margin: 1px 0;
+                white-space: nowrap;
+                padding: 0.5em;
+                font-weight: bold;
+                text-align: left;
+                
+                & > span {
+                    color: var(--color-light-tertiary);
+                    display: inline;
+                    font-size: 1.2em;
+                }
             }
 
-            .app {
-                width: 7.5em;
-            }
+         
+
             
           }
       }
@@ -289,22 +308,13 @@
                 </button>
                 <ul class="submenu display-none">
                     <li>
-                        <button class="app layers">
-                        <span class="material-symbols-outlined">flag</span>
-                        <span class="title">Administrative</span>
-                        </button>
+                        <button class="layers">Administrative</button>
                     </li>
                     <li>
-                        <button class="app layers">
-                        <span class="material-symbols-outlined">local_post_office</span>
-                        <span class="title">Postal</span>
-                        </button>
+                        <button class="layers">Postal</button>
                     </li>
                     <li>
-                        <button class="app layers">
-                        <span class="material-symbols-outlined">location_city</span>
-                        <span class="title">Geolytix</span>
-                        </button>
+                        <button class="layers">Geolytix</button>
                     </li>
                 </ul>
             </li>
@@ -316,46 +326,25 @@
                 </button>
                 <ul class="submenu display-none">
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">sentiment_satisfied</span>
-                        <span class="title">Population</span>
-                        </button>
+                        <button class="themes">Population</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">sentiment_satisfied</span>
-                        <span class="title">Age</span>
-                        </button>
+                        <button class="themes">Age Profile</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">sentiment_satisfied</span>
-                        <span class="title">Social Grade</span>
-                        </button>
+                        <button class="themes">Social Grade</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">school</span>
-                        <span class="title">Education</span>
-                        </button>
+                        <button class="themes">Education</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">school</span>
-                        <span class="title">Housing</span>
-                        </button>
+                        <button class="themes">Housing Tenure</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">school</span>
-                        <span class="title">Ethnicity</span>
-                        </button>
+                        <button class="themes">Ethnicity</button>
                     </li>
                     <li>
-                        <button class="app themes">
-                        <span class="material-symbols-outlined">work</span>
-                        <span class="title">Workers</span>
-                        </button>
+                        <button class="themes">Workers</button>
                     </li>
                 </ul>
             </li>
@@ -363,20 +352,14 @@
             <li>
                 <button class="app tools">
                     <span class="material-symbols-outlined">construction</span>
-                    <span class="title">Tools</span>
+                    <span class="title">Tools
                 </button>
                 <ul class="submenu display-none">
                     <li>
-                        <button class="app tools">
-                        <span class="material-symbols-outlined">filter_alt</span>
-                        <span class="title">Filering</span>
-                        </button>
+                        <button class="tools">Filering</button>
                     </li>
                     <li>
-                        <button class="app tools">
-                        <span class="material-symbols-outlined">query_stats</span>
-                        <span class="title">Analysis</span>
-                        </button>
+                        <button class="tools">Spatial Analysis</button>
                     </li>
                 </ul>
             </li>
@@ -646,22 +629,33 @@
 
       const menu = document.querySelector('.menu');
       const apps = menu.querySelectorAll('button.app');
+      const action_buttons = menu.querySelectorAll('.submenu button');
       const submenus = menu.querySelectorAll('.submenu');
+    
 
-      for(let app of apps) {
-        app.addEventListener('click', e => {
+      function menuClick(e) {
+        
+        for(let submenu of submenus) {
+            
+            e.target.parentNode.contains(submenu) ? 
+            submenu.classList.toggle('display-none') : submenu.classList.add('display-none')
+        }
+      
+      }
 
-            for(let submenu of submenus) {
-                if(e.target.parentNode.contains(submenu)) {
-                    submenu.classList.toggle('display-none');
-                } else {
-                    submenu.classList.add('display-none');
-                }
-                
-            }
+      for(let app of apps) app.addEventListener('click', menuClick);
 
+      for(let item of action_buttons) {
+
+        item.addEventListener('click', e => {
+            for(let submenu of submenus) submenu.classList.add('display-none');
+            mapp.ui.elements.alert({
+                text: `You selected "${e.target.textContent}"`
+            })
         })
-      } 
+      }
+
+      
 
 
 
