@@ -556,7 +556,10 @@
  
 
       const coreHeader = mapp.utils.html.node`
-      <div class="app mapp-core">
+      <div class="app mapp-core" onclick=${
+      e => {
+        mapp.ui.elements.alert({text: 'Welcome to Mapp Core ! I am not doing anything yet but greet.'})
+      }}>
       <img src="https://geolytix.github.io/public/mapp_v4/emblem.svg"/>
       <span class="title">CORE`
 
