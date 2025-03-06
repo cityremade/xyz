@@ -196,6 +196,16 @@
         background-image: url('https://geolytix.github.io/public/mapp_v4/emblem.svg');
       }
 
+      .stack {
+          background-color: steelblue;
+          align-self: flex-end;
+          cursor: pointer;
+
+          &.excl {
+            background-color: lightgrey;
+          }
+        }
+
       @media only screen and (min-width: 768px) {
         body {
           display: grid;
@@ -289,6 +299,9 @@
           top: unset;
           bottom: 4em;
         }
+
+
+
       }
     </style>
   </head>
@@ -323,6 +336,16 @@
         <div id="layers" class="active"></div>
         <div id="locations"></div>
       </div>
+    </div>
+
+    <div id="histogram" style="
+    position: fixed; 
+    top: 1em; 
+    right: 1em; 
+    background-color: white; 
+    border-radius: 1em; 
+    padding: 1em;">
+      Hello I am going to hold a histogram demo!
     </div>
 
     <script type="module">
@@ -668,6 +691,41 @@
             },
             {
                 label: 'Spatial Analysis'
+            },
+            {
+                label: 'Coordinates from the map'
+            },
+            {
+                label: 'Streetview'
+            },
+            {
+                label: 'Measure distance'
+            }
+        ]
+       })
+
+       const coreTurf = createListItem({
+        classlist: 'tools',
+        icon_name: 'map',
+        label: 'Turf',
+        sublist: [
+            {
+                label: 'Polygon'
+            },
+            {
+                label: 'Point'
+            },
+            {
+                label: 'Linestring'
+            },
+            {
+                label: 'Intersection'
+            },
+            {
+                label: 'Cut hole'
+            },
+            {
+                label: 'Union'
             }
         ]
        })
@@ -678,7 +736,8 @@
        ${coreHeader}
        ${coreLayers}
        ${coreThemes}
-       ${coreTools}`;
+       ${coreTools}
+       ${coreTurf}`;
 
 
        mapp.utils.render(document.getElementById('core-menu'), coreMenu);
@@ -726,6 +785,78 @@
       // Append spacer for tableview
       /*document.getElementById('mapButton').append(mapp.utils.html.node`
     <div class="mobile-display-none" style="height: 60px;">`);*/
+
+      // this is my histogram trial
+
+      const container = mapp.utils.html.node`<div 
+      data-current_a="0"
+      data-current_b="20"
+      style="display: flex; flex-direction: row; gap: 4px;"
+      >`
+
+      for(let i = 0; i < 21; i++) {
+        const style = `
+        width: 10px; 
+        height: ${100*Math.random()}px
+        `;
+        container.append(mapp.utils.html.node`<div 
+        class="stack" data-stack=${i} style=${style}>`)
+      }
+
+      function testStack(params) {
+
+        if(Number(params.stack) >= Number(params.current_a) && Number(params.stack) <= Number(params.current_b)) {
+          return true // include
+        }
+        else return false // exlude
+
+      }
+
+      const slider_ab = mapp.ui.elements.slider_ab({
+        min: 0,
+        max: 20,
+        val_a: 0,
+        val_b: 20,
+        callback_a: (val) => {
+          container.dataset.current_a = val;
+
+          for(const el of container.childNodes) {
+
+            const test = testStack({
+              stack: el.dataset.stack,
+              current_a: val,
+              current_b: container.dataset.current_b
+            })
+
+            test ? el.classList.remove('excl') : el.classList.add('excl');
+
+          }
+        },
+        callback_b: (val) => {
+
+          container.dataset.current_b = val;
+
+          for(const el of container.childNodes) {
+            
+            const test = testStack({
+              stack: el.dataset.stack,
+              current_a: container.dataset.current_a,
+              current_b: val
+            })
+            
+            test ? el.classList.remove('excl') : el.classList.add('excl');
+          }
+        }
+      });
+
+      const target = document.getElementById('histogram');
+      
+
+      target.append(container);
+
+      target.append(slider_ab);
+
     </script>
-  </body>
+  
+</body>
 </html>
