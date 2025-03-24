@@ -24,12 +24,16 @@ const filterTypes = {
 
   in: (col, val) => `"${col}" = ANY (\$${addValues([val], 'array')})`,
 
-  like: (col, val) =>
-    `(${val
+  like: (col, val) => {
+    // The val string must be decoded.
+    val = decodeURIComponent(val);
+
+    return `(${val
       .split(',')
       .filter((val) => val.length > 0)
       .map((val) => `"${col}" ILIKE \$${addValues(`${val}%`, 'string')}`)
-      .join(' OR ')})`,
+      .join(' OR ')})`;
+  },
 
   match: (col, val) => `"${col}"::text = \$${addValues(val, 'string')}`,
 };
@@ -68,7 +72,7 @@ If the filter is a string, the filter will be returned as is.
 @param {Array} params
 @returns {string} SQL query string
 */
-module.exports = sqlfilter;
+export default sqlfilter;
 
 function sqlfilter(filter, params) {
   //Check to see that params is an array and that the values of the params are of valid type.
