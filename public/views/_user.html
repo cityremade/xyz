@@ -7,26 +7,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
-
-  <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
-
-  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+  <script type="module" src="{{dir}}/public/js/lib/mapp.js" defer></script>
+  <script type="module" src="{{dir}}/public/js/lib/ui.js" defer></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;1,200;1,300&display=swap');
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       border-spacing: 0;
+      font-family: 'Titillium Web', sans-serif;
+      color: #3f3f3f;
     }
 
     body {
       position: absolute;
       height: 100%;
       width: 100%;
-      padding: 40px;
-      font: 14px "Open Sans", sans-serif;
+      padding: 2em;
+      font-size: 0.8em;
     }
 
     body>.flex {
@@ -35,11 +36,292 @@
       flex-direction: column;
     }
 
-    .material-icons {
-      font-family: 'Material Symbols Outlined', sans-serif;
-      font-size: 24px;
-      color: black;
+    a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #003D57;
     }
+
+    /* begin agaTable styling */
+
+    #userTable {
+      height: 100%;
+      width: 100%;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+
+    table {
+      position: relative;
+      width: 100%;
+      border: 1px solid #00000033;
+      border-radius: 3px;
+      background-color: white;
+      padding: 0 0.25em;
+      display: table;
+      overflow: scroll;
+      cursor: pointer;
+    }
+
+    table tr {
+      border-bottom: 1px solid #00000011;
+    }
+
+    table tr:hover {
+      background-color: #fffde7;
+    }
+
+    table tr td {
+      border-bottom: 1px solid #00000011;
+      padding: 0.2em;
+      text-overflow: ellipsis;
+    }
+
+    table thead {
+      text-align: left;
+      font-weight: bold;
+      border-bottom: 1px solid #00000011;
+    }
+
+    table thead th {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    table thead th::after {
+      content: "\25be";
+      display: inline-block;
+      vertical-align: middle;
+      transform: rotate(270deg);
+    }
+
+    td .dot {
+      margin-right: 2px;
+      height: 0.8em;
+      width: 0.8em;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* begin table sorting */
+    table th.asc::after {
+      content: "\25be";
+      transform: rotate(180deg);
+    }
+
+    table th.desc::after {
+      content: "\25be";
+    }
+
+    table th.asc::after,
+    table th.desc::after {
+      margin-left: 5px;
+    }
+
+    /* end table sorting */
+
+    /* end agaTable styling */
+
+    /* begin form style */
+    .mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #00000033;
+      z-index: 10000;
+    }
+
+    .none {
+      display: none;
+    }
+
+    .form {
+      position: sticky;
+      z-index: 10001;
+      border-radius: 3px;
+      margin: 1em auto;
+      max-height: 100%;
+      overflow: auto;
+      background-color: #ffffff;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    }
+
+    .form *:focus {
+      outline: none;
+    }
+
+    .form fieldset {
+      border: none;
+    }
+
+    .form form {
+      padding: 10px;
+    }
+
+    .form form a {
+      cursor: pointer;
+    }
+
+    .form form ul {
+      list-style-type: none;
+    }
+
+    .form form li {
+      padding: 0.3em;
+    }
+
+    .form .searchbox ul {
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="search"] {
+      width: 100%;
+      outline: none;
+      border: solid 1px #ccccccee;
+      border-radius: 2px;
+      padding: 0.2em;
+    }
+
+    .form input[type="reset"] {
+      background: none;
+      outline: none;
+      border: none;
+      color: inherit;
+    }
+
+    .form select {
+      width: 100%;
+      border: solid 1px #ccccccee;
+      border-radius: 2px;
+    }
+
+    .account-blocked {
+      color: #546e7a;
+      background: #cfd8dc;
+    }
+
+    input[type="checkbox"] {
+      vertical-align: middle;
+      accent-color: #003D57;
+    }
+
+    input:focus {
+      outline: none;
+    }
+
+    /* end form style */
+
+    /* begin pill style */
+    .pill-container {
+      display: flex;
+      gap: 4px;
+      flex-flow: row wrap;
+      padding: 0.2em 0;
+    }
+
+    .pill-container .pill {
+      cursor: default;
+      padding: 1px 1px 1px 2px;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #f2f2f2;
+      background-color: #003D57;
+      user-select: none;
+    }
+
+    .pill-container .pill button {
+      cursor: pointer;
+      font-size: 0.8em;
+      padding: 0 2px;
+    }
+
+    .searchbox {
+      position: relative;
+    }
+
+    .searchbox ul {
+      position: absolute;
+      width: 100%;
+    }
+
+    .li-role {
+      border-right: solid 1px #ccc;
+      border-left: solid 1px #ccc;
+      border-bottom: solid 1px #ccc;
+      margin-top: 1px;
+      border-radius: 2px;
+      cursor: pointer;
+      background-color: white;
+      width: 100%;
+      font-weight: bold;
+      color: #003D57;
+    }
+
+    .li-role:hover {
+      background-color: #fffde7;
+    }
+
+    /* end pill style */
+
+    dialog {
+      margin: auto;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+      border: none !important;
+      border-radius: 2px;
+      min-width: 350px;
+      max-width: 70%;
+      max-height: 70%;
+      z-index: 1001;
+
+      p {
+        text-align: center;
+      }
+
+      * {
+        padding: 0.5em;
+      }
+    }
+
+    .ws-pre {
+      white-space: pre;
+    }
+
+    dialog .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    dialog.alert button {
+      float: right;
+      font-size: 0.9em;
+      color: white;
+      z-index: 1005;
+      min-width: 4em;
+      margin: 0 auto 1em !important;
+    }
+
+    dialog:focus {
+      outline: none;
+    }
+
+    .txt-hl {
+      background-color: #fff9c4;
+      font-weight: bold
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
 
     .btn-row {
       align-items: center;
@@ -47,7 +329,7 @@
       flex-wrap: wrap;
       display: flex;
       gap: 10px;
-      margin: 10px 0;
+      margin: 1em 0;
     }
 
     button {
@@ -59,12 +341,6 @@
 
       &:hover {
         cursor: pointer;
-      }
-
-      &.flat {
-        border-radius: 3px;
-        border-bottom: 1px solid #f2f2f2;
-        padding: 0.3em;
       }
 
       &.raised {
@@ -83,11 +359,56 @@
       }
     }
 
-    @media only screen and (max-width: 768px) {
+    button span {
+      color: white;
+    }
+
+    .txt-red {
+      color: #f44336;
+    }
+
+    .filtering {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-gap: 0.2em;
+    }
+
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      background-color: white;
+    }
+
+    @media only screen and (min-width: 768px) {
+      #userTable {
+        width: 70%;
+        margin: auto;
+      }
+
+      .form {
+        width: 400px;
+      }
+
+      .btn-row {
+        width: 70%;
+        margin: 1em auto;
+      }
+    }
+
+    @media only screen and (max-width: 700px) {
 
       body,
       h1 {
-        padding: 10px;
+        margin: 0
+      }
+
+      .form {
+        width: 95%;
+      }
+
+      .desktop-only {
+        display: none;
       }
     }
   </style>
@@ -96,21 +417,45 @@
 
 <body>
 
+  <div class="mask none"></div>
+
   <div class="flex">
 
+    <div><img src="https://geolytix.github.io/public/geolytix_mapp.svg" height="10"></div>
     <h1>Account Administration</h1>
 
+    <p><span id="logged-in-label">Logged in as</span>&nbsp;<b><span id="logged-in"></span></b></p>
+
     <div class="btn-row">
-      <div <span>Filter</span>
-        <input id="filterInput" type="text" placeholder="e.g. geolytix" style="max-width: 100%;">
-        <button class="raised primary-colour" id="toggleBlocked">Show blocked accounts</button>
+
+      <div>
+        <button class="raised primary-colour" id="default-view"
+          onclick="window.location.href = `${window.location.origin}{{dir}}`">&#8592;&nbsp;<span id="back">Back to
+            Mapp</span></button>
+        <button class="raised primary-colour" id="test-view"
+          onclick="window.location.href = `${window.location.origin}{{dir}}?template=test_view&download=true&integrity=true`"><span
+            id="test-view">Test View</span></button>
+        <button class="raised red" id="logout"
+          onclick="window.location.href = `${window.location.origin}{{dir}}?logout=true`"><span
+            id="logout">Logout</span></button>
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <div class="filtering">
+        <input type="text" id="filterInput">
+
+        <input type="text" id="filterStatus">
       </div>
       <div>
-        <button class="raised primary-colour"
-          onclick="window.location.href = `${window.location.origin}{{dir}}`">Default View</button>
-        <button class="raised red"
-          onclick="window.location.href = `${window.location.origin}{{dir}}?logout=true`">Logout</button>
+        <label for="showBlocked">
+          <input id="showBlocked" type="checkbox" style="margin-right: 4px;"><span id="show-blocked-label">Show blocked
+            accounts</span></label>
+        <p style="margin-top: 0.5em;"><span id="top-info">Click on a row in the table to make changes to the users
+            permissions and roles. <br>Click on a table header to sort.</span></p>
       </div>
+
     </div>
 
     <div id="userTable"></div>
@@ -118,6 +463,7 @@
   </div>
 
 </body>
+
 
 <script>
   window.onload = async () => {
@@ -127,407 +473,779 @@
       return;
     }
 
+    // expand dictionary
+    mapp.utils.merge(mapp.dictionaries, {
+      en: {
+        admin_view: {
+          languages: {
+            "en": "English",
+            "de": "German",
+            "zh": "Chinese",
+            "zh_tw": "Chinese (Traditional)",
+            "pl": "Polish",
+            "ja": "Japanese",
+            "es": "Spanish",
+            "fr": "French",
+            "tr": "Turkish",
+            "it": "Italian",
+            "th": "Thai"
+          },
+          info: "Information",
+          view: "View",
+          save: "Save",
+          confirm: "Confirm",
+          cancel: "Cancel",
+          delete: "Delete",
+          new: "New",
+          re_verification: "Re-verification",
+          verified: "Verified",
+          approved: "Approved",
+          blocked: "Blocked",
+          admin: "Administrator",
+          api: "API",
+          acc_details: "Account Details",
+          email: "E-mail",
+          email_label: "Account e-mail address",
+          lang: "Language",
+          lang_label: "Account Language",
+          status: "Status",
+          status_description: {
+            "Verified": "check the box to verify a user",
+            "Re-verification": "check the box to re-verify after password reset",
+            "Approved": "check the box to approve a user",
+            "Administrator": "check the box to make user an administrator",
+            "API": "check the box to allow the user API privileges",
+            "Blocked": "check the box to block the user"
+          },
+          status_info: "Information on Status",
+          roles: "Access Roles",
+          roles_info: "Information on Access Roles",
+          roles_no_info: "no description provided",
+          roles_view: "View information on access roles",
+          roles_no: "No access roles defined",
+          roles_search: "Search access roles",
+          approved_by: "Approved by",
+          approved_label: "Administrator who approved last modification to this account",
+          expiry: "Account Expiry",
+          expiry_label: "Date when user access expires",
+          access_log: "Access Log",
+          access_log_label: "User Access History",
+          verification_token: "Verification Token",
+          failed_login: "Failed Login Attempts",
+          sure: "Are you sure to delete this user account?",
+          undone: "This cannot be undone",
+          deleted: "Account for this user has been permanently deleted.",
+          delete_user: "Delete User",
+          last_active: "Last active",
+          logged_in_label: "Logged in as",
+          back: "Back to Mapp",
+          test_view: "Test View",
+          logout: "Logout",
+          search_accounts: "Search accounts",
+          filter_status: "Filter status",
+          unknown: "Unknown",
+          show_blocked: "Show blocked accounts",
+          top_info: "Click on a row in the table to make changes to the users permissions and roles. Click on a table header to sort."
+        }
+      }
+    });
+
     // Get list of available roles from workspace.
-    const rolesList = await xhrPromise(`${document.head.dataset.dir}/api/workspace/roles`)
+    const rolesList = await mapp.utils.xhr(`${document.head.dataset.dir}/api/workspace/roles?detail=true`);
 
-    // List of languages key values.
-    const languagesList = {
-      "en": "English",
-      "de": "German",
-      "zh": "Chinese",
-      "zh_tw": "Chinese (Traditional)",
-      "pl": "Polish",
-      "ja": "Japanese",
-      "es": "Spanish",
-      "fr": "French",
-      "tr": "Turkish",
-      "it": "Italian",
-      "th": "Thai",
-    };
+    // List of languages key values. 
+    const languagesList = mapp.dictionary.admin_view.languages;
 
-    const params = {}
+    // Get current URL params.
+    const params = new URLSearchParams(window.location.search);
 
-    // Get URL params.
-    window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (match, key, value) => {
-      params[key] = decodeURI(value)
+    // get logged in user details
+    const cookie = await fetch(`${document.head.dataset.dir}/api/user/cookie`)
+    const cookieResponse = await cookie.json();
+    document.getElementById('logged-in').textContent = cookieResponse.email || mapp.dictionary.admin_view.unknown;
+    document.getElementById('logged-in-label').textContent = mapp.dictionary.admin_view.logged_in_label;
+    // set button text
+    document.getElementById('back').textContent = mapp.dictionary.admin_view.back;
+    document.getElementById('test-view').textContent = mapp.dictionary.admin_view.test_view;
+    document.getElementById('logout').textContent = mapp.dictionary.admin_view.logout;
+
+    document.getElementById('show-blocked-label').textContent = mapp.dictionary.admin_view.show_blocked;
+    document.getElementById('top-info').textContent = mapp.dictionary.admin_view.top_info;
+
+    // destroy form and clear selection when mask is clicked
+    document.querySelector('.mask').addEventListener('click', e => {
+      const form = document.querySelector('.form');
+      if (form && form.contains(e.target)) return;
+      document.querySelector('.mask').classList.add('none');
+      removeSearch();
     })
 
-    // Get user list from host.
-    const response = await xhrPromise(`${document.head.dataset.dir}/api/user/list`)
-
-    // Data must be an array if only 1 record returned in response.
-    const data = Array.isArray(response) && response || [response]
-
-    data.forEach(row => {
-      row.re_verification = !row.verificationtoken
-    })
-
-    // Sort data to promote email from url parameter to top.
-    if (params.email) {
-      data.sort(function (x, y) { return x.email == params.email ? -1 : y.email == params.email ? 1 : 0; });
+    function clearNode(node) {
+      if (!node) return;
+      while (node.firstChild) {
+        node.removeChild(node.firstChild)
+      }
     }
 
-    const userTable = new Tabulator(document.getElementById('userTable'),
-      {
-        data: data,
-        rowFormatter: row => {
-          const user = row.getData()
+    // function to compare if 2 sets have the same elements
+    const eqSet = (xs, ys) => xs.size === ys.size && [...xs].every((x) => ys.has(x));
 
-          // Highlight user row.
-          row.getElement().style.backgroundColor = user.email === params.email && '#fff9c4'
+    function checkUserStatus(user) {
+      let state = { label: mapp.dictionary.admin_view.new, color: '#e64a19' };
+      if (user.re_verification) state = { label: mapp.dictionary.admin_view.re_verification, color: '#b71c1c' }
+      if (user.verified) state = { label: mapp.dictionary.admin_view.verified, color: '#9c27b0' }
+      if (user.approved) state = { label: mapp.dictionary.admin_view.approved, color: '#43a047' }
+      if (user.admin) state = { label: mapp.dictionary.admin_view.admin, color: '#0d47a1' }
+      if (user.blocked) state = { label: mapp.dictionary.admin_view.blocked, color: '#263238' }
+      const bg = `background-color: ${state.color}`;
+      return mapp.utils.html`<span class="dot" style=${bg}></span>${state.label}`
+    }
 
-          // Style blocked user row.
-          row.getElement().style.backgroundColor = user.blocked && '#ef9a9a'
-        },
-        columnHeaderVertAlign: 'middle',
-        rowHeight: 30,
-        columns: [
-          {
-            field: 'email',
-            vertAlign: 'middle',
-            headerTooltip: 'Account EMail',
-            titleFormatter: () => '<span class="material-icons">face</span>',
-            resizable: true,
-            frozen: true,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 'verified',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'The account email has been verified through a token sent to the email address.',
-            titleFormatter: () => '<span class="material-icons">done</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 're_verification',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'The account has an outstanding password reset to be verified.',
-            titleFormatter: () => '<span class="material-icons">check_circle</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 'approved',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'The account has been approved by a site administrator and is permitted to access the application.',
-            titleFormatter: () => '<span class="material-icons">done_all</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 'admin',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'The account is an admin account which can access this page and change other account credentials.',
-            titleFormatter: () => '<span class="material-icons">supervisor_account</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 'api',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'The account has priviliges to create API keys.',
-            titleFormatter: () => '<span class="material-icons">key</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 1 // Hide first
-          },
-          {
-            field: 'failedattempts',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'Failed login attempts.',
-            titleFormatter: () => '<span class="material-icons">warning</span>',
-            formatter: (cell, formatterParams) => '<span style="color:red; font-weight:bold;">' + cell.getValue() + '</span>',
-            resizable: false,
-            responsive: 2 // Hide first
-          },
-          {
-            field: 'language',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'Account language',
-            titleFormatter: () => '<span class="material-icons">translate</span>',
-            editor: 'list',
-            editorParams: {
-              // show the label of the language in the dropdown list
-              values: Object.keys(languagesList).map(key => ({ label: languagesList[key], value: key })),
-            },
-            cellEdited: languageEdited,
-            resizable: false,
-            responsive: 1,
-            formatter: (cell, formatterParams, onRendered) => {
+    async function submit(updatedUser, user) {
 
-              let val = cell.getValue()
+      const body = {...updatedUser};
 
-              if (!val) return;
+      body.roles = `{${updatedUser.roles}}`
 
-              return languagesList[val];
+      await fetch(`${document.head.dataset.dir}/api/user/update`, {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-type": "application/json"
+        }
+      })
+
+      document.querySelector('.mask').classList.add('none');
+      
+      removeSearch();
+
+      updateUserRow({...user, ...updatedUser});
+
+    }
+
+    function userForm(user) {
+
+      const form_email = mapp.utils.html`<li>
+      <fieldset title="${mapp.dictionary.admin_view.email_label}">
+      <label for="email">${mapp.dictionary.admin_view.email}</label>
+      <input type="email" id="email" name="email" required value=${user.email} disabled>`
+
+      const form_language = mapp.utils.html`<li>
+      <fieldset title="${mapp.dictionary.admin_view.lang_label}">
+      <label for="language">${mapp.dictionary.admin_view.lang}</label>
+      <select name="language" id="language">
+      ${Object.entries(languagesList).map(l => {
+        if (l[0] === user.language) return mapp.utils.html.node`<option selected value=${l[0]}>${l[1]}`
+          return mapp.utils.html.node`<option value=${l[0]}>${l[1]}`
+      })}`
+
+      const form_approved_by = mapp.utils.html`<li>
+      <fieldset title="${mapp.dictionary.admin_view.approved_label}">
+      <label for="approved_by">${mapp.dictionary.admin_view.approved_by}</label>
+      <input type="text" id="approved_by" name="approved_by" disabled value=${user.approved_by}>`
+
+      const form_expiry = mapp.utils.html`<li>
+      <fieldset title="${mapp.dictionary.admin_view.expiry_label}">
+      <label for="expires_on">${mapp.dictionary.admin_view.expiry}</label>
+      <input type="date" id="expires_on" name="expires_on" value=${((e) => {
+        if (!user.expires_on) return;
+        const expiryDate = new Date(user.expires_on * 1000);
+        return expiryDate.toLocaleDateString('fr-CA')
+      })()}>`
+
+      const form_verification_token = mapp.utils.html`<li>
+      <fieldset>
+      <label for="verificationtoken">${mapp.dictionary.admin_view.verification_token}</label>
+      <input type="text" id="verificationtoken" name="verificationtoken" disabled value=${user.verificationtoken}>`
+
+      const form_failed_login = mapp.utils.html`<li>
+      <fieldset title="${mapp.dictionary.admin_view.failed_login}">
+      <label for="failedattempts">${mapp.dictionary.admin_view.failed_login}</label>
+      <input type="number" id="failedattempts" name="failedattempts" disabled value=${user.failedattempts}>`
+
+      function status_checkbox(params) {
+        
+        return mapp.utils.html.node`<fieldset 
+        title="${mapp.dictionary.admin_view.status_description[params.description]}">
+        ${() => {
+          const chk = mapp.utils.html.node`<input type="checkbox" id="${params.status}" name="${params.status}">`;
+          chk.checked = user[params.status];
+          return chk;
+        }}
+        <label for="verified"><b>${mapp.dictionary.admin_view[params.status]}</b></label>
+        <input type="hidden" name="${params.status}" value="no"/>`
+      
+      }
+
+      const form = mapp.utils.html.node`<form
+      onreset=${e => {
+          e.preventDefault();
+          document.querySelector('.mask').classList.add('none');
+          removeSearch();
+        }}
+      onchange=${e => {
+          e.preventDefault();
+        }}
+      onsubmit=${async e => {
+          // important: overrride default function
+          e.preventDefault();
+
+          const formData = new FormData(form);
+
+          // will store updated user settings
+          const userUpdated = {};
+
+          // process form data
+          Object.entries(user).forEach(item => {
+
+            const updated = [...formData].find(record => record[0] === item[0]);
+
+            // skip unchanged fields
+            if (updated === undefined) return;
+            // skip checked options if no change
+            if (updated[1] === 'on' && item[1]) return;
+            // skip unchecked options if no change
+            if (updated[1] === 'no' && !item[1]) return;
+            // check if roles have been edited
+            if (updated[0] === 'roles') {
+              const initial_roles = new Set(user.roles);
+              const new_roles = new Set(updated[1].split(","));
+              // check if roles have been altered
+              const rolesUnchanged = eqSet(initial_roles, new_roles);
+              if (rolesUnchanged) return;
+              userUpdated.roles = updated[1]; //`{${updated[1]}}`
+              return;
             }
-          },
-          {
-            field: 'roles',
-            title: 'Roles',
-            vertAlign: 'middle',
-            headerTooltip: 'Account roles',
-            headerSort: false,
-            editor: 'list',
-            editorParams: {
-              values: rolesList,
-              multiselect: true
-            },
-            cellEdited: rolesEdited,
-            resizable: false,
-            responsive: 0 // Never hide
-          },
-          {
-            field: 'access_log',
-            title: 'Access Log',
-            vertAlign: 'middle',
-            headerTooltip: 'Click last access log entry for full access log array.',
-            cellClick: getAccessLog,
-            resizable: false,
-            responsive: 1 // Hide first
-          },
-          {
-            field: 'approved_by',
-            title: 'Approved by',
-            vertAlign: 'middle',
-            headerTooltip: 'Admin who approved last modification to this account.',
-            resizable: false,
-            responsive: 1 // Hide first
-          },
-          {
-            visible: typeof data[0].expires_on !== 'undefined',
-            field: 'expires_on',
-            title: 'Expires on',
-            vertAlign: 'middle',
-            minWidth: 120,
-            headerTooltip: 'Date when user approval expires.',
-            responsive: 1, // Hide first
-            formatter: (cell, formatterParams, onRendered) => {
+            // process expiry date if it was changed
+            if (updated[0] === 'expires_on') {
+              if (!updated[1]) return;
+              const prevExpiryDate = (new Date(user.expires_on * 1000)).toLocaleDateString('fr-CA');
+              if (prevExpiryDate === updated[1]) return;
+              userUpdated[item[0]] = parseInt(new Date(updated[1]).getTime() / 1000);
+              return;
+            }
+            // set changes on user updated payload
+            switch (updated[1]) {
+              case 'on':
+                userUpdated[item[0]] = true; // flags on 
+                break;
+              case 'no':
+                userUpdated[item[0]] = false; // flags off
+                break;
+              default:
+                userUpdated[item[0]] = updated[1]; // new value
+            }
+          });
 
-              let val = parseInt(cell.getValue())
+          userUpdated.email = user.email;
+          // submit updated user
+          await submit(userUpdated, user);
 
-              if (isNaN(val)) return;
+        }}>
+      <div><h2>${mapp.dictionary.admin_view.acc_details}</h2></div>
+      <ul>
+        ${form_email}
+        ${form_language}
+        </ul>
 
-              let str = new Date(val * 1000).toLocaleString('en-GB', {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 0.5em; padding: 0.2em;">
+          <div style="grid-column: 1 / span 3;" onclick=${e => {
+          e.stopPropagation();
+          let msg = '';
 
-              // Colour text red if account has expired.
-              return val < new Date() / 1000 ? `<span style="color:red;">${str}</span>` : str;
-            },
-            editor: expiryEdit,
-            resizable: false
-          },
-          {
-            field: 'blocked',
-            hozAlign: 'center',
-            vertAlign: 'middle',
-            headerTooltip: 'Blocked accounts can no longer login or reset their password.',
-            titleFormatter: () => '<span class="material-icons">lock</span>',
-            formatter: 'tickCross',
-            cellClick: cellToggle,
-            resizable: false,
-            responsive: 2 // Hide second
-          },
-          {
-            field: 'delete',
-            vertAlign: 'middle',
-            headerSort: false,
-            titleFormatter: () => '<span class="material-icons">person_remove</span>',
-            formatter: () => '<span style="color:red; font-weight:bold;">DELETE</span>',
-            cellClick: rowDelete,
-            resizable: false,
-            responsive: 2 // Hide second
+          Object.keys(mapp.dictionary.admin_view.status_description).map(k => {
+            msg += `${k} - ${mapp.dictionary.admin_view.status_description[k]}\n`
+          })
+
+          mapp.ui.elements.alert({
+            class: 'alert',
+            title: mapp.dictionary.admin_view.status_info,
+            text: mapp.utils.html`<span class="ws-pre">${msg}`
+          })
+
+        }}><a>${mapp.dictionary.admin_view.status}&nbsp;&#8505;</a></div>
+
+          ${Object.values([
+            {description: 'Verified', status: 'verified'},
+            {description: 'Re-verification', status: 're_verification'},
+            {description: 'Approved', status: 'approved'},
+            {description: 'Administrator', status: 'admin'},
+            {description: 'API', status: 'api'},
+            {description: 'Blocked', status: 'blocked'}
+          ]).map(item => status_checkbox({description: item.description, status: item.status}))}
+
+
+        </div>
+
+        <div style="padding: 0.2em">
+          ${(() => {
+          // check if there are roles 
+          if (!Object.keys(rolesList).length) {
+            return mapp.utils.html.node`<div>${mapp.dictionary.admin_view.roles}`;
           }
-        ]
+          //and if there are description to display
+          if (!Object.values(rolesList).every(role => role.label)) {
+            return mapp.utils.html.node`<div>${mapp.dictionary.admin_view.roles}`
+          }
+
+          return mapp.utils.html.node`<div onclick=${e => {
+            e.stopPropagation();
+            let msg = '';
+            Object.entries(rolesList).map(item => {
+              msg += `${[item[0]]} - ${item[1].label || mapp.dictionary.admin_view.roles_no_info}\n`
+            })
+
+            mapp.ui.elements.alert({
+              title: mapp.dictionary.admin_view.roles_info,
+              text: msg
+            })
+
+          }
+            }><a title="${mapp.dictionary.admin_view.roles_view}">${mapp.dictionary.admin_view.roles}&nbsp;&#8505;`
+        })()
+        }
+          ${(() => {
+
+          if (!Object.keys(rolesList).length) return mapp.utils.html.node`
+              <input type="text" disabled value="${mapp.dictionary.admin_view.roles_no}">`;
+
+          const rolesContainer = mapp.utils.html.node`<div>`
+
+          const pills = mapp.ui.elements.pills({
+            target: rolesContainer,
+            pills: user.roles,
+            addCallback: (val, pills) => {
+
+              let roles_input_el = document.querySelector('.form input[type="hidden"][name="roles"]');
+              if (!roles_input_el) return;
+              roles_input.value = [...pills].join(',');
+
+              // reset searchbox and results
+              searchbox.list.innerHTML = '';
+              searchbox.input.value = '';
+            },
+            removeCallback: (val, pills) => {
+              roles_input.value = [...pills].join(',');
+
+            }
+          })
+
+          const roles_input = mapp.utils.html.node`<input type="hidden" name="roles" value=${user.roles.join(',')}/>`;
+
+          function li(val) {
+            return mapp.utils.html.node`<li class="li-role" onclick=${e => {
+              e.stopPropagation();
+              if (pills.pills.has(val)) return;
+              pills.add(val);
+              roles_input.value = [...pills.pills].join(',')
+            }}>${val}`
+          }
+
+          const searchbox = mapp.ui.elements.searchbox({
+            target: rolesContainer,
+            placeholder: mapp.dictionary.admin_view.roles_search,
+            searchFunction: (e) => {
+
+              searchbox.list.innerHTML = '';
+
+              if (!e.target.value) {
+                // show suggested
+                Object.keys(rolesList)
+                  .filter(val => !pills.pills.has(val))
+                  .filter((val, i) => i < 3)
+                  .forEach(val => (searchbox.list.append(li(val))));
+                return;
+              }
+
+              const pattern = e.target.value;
+
+              let filtered = Object.keys(rolesList).filter(val =>
+                val.toLowerCase().startsWith(pattern.toLowerCase()))
+
+              if (!filtered.length) {
+
+                searchbox.list.append(mapp.utils.html.node`
+                    <li class="li-role"
+                    onclick=${e => {
+                    e.stopPropagation();
+                    searchbox.list.innerHTML = '';
+                    searchbox.input.value = '';
+                  }}
+                    ><span>${mapp.dictionary.no_results}`);
+
+                return;
+              }
+
+              filtered
+                .filter(val => !pills.pills.has(val))
+                .filter((val, idx) => idx < 9)
+                .forEach(val => (searchbox.list.append(li(val))));
+            }
+          })
+
+          searchbox.input.onblur = e => {
+            setTimeout(() => (searchbox.list.innerHTML = ''), 500);
+          }
+
+          rolesContainer.appendChild(roles_input)
+
+          return rolesContainer;
+
+        })()
+        }
+        </div>
+
+        <ul>
+        ${form_approved_by}
+        ${form_expiry}
+        <li>
+          <fieldset title="${mapp.dictionary.admin_view.access_log_label}">
+            <label for="access_log">${mapp.dictionary.admin_view.access_log}&nbsp;<a onclick=${async e => {
+
+          const response = await mapp.utils.xhr(`${document.head.dataset.dir}/api/user/log?email=${user.email}`);
+          if (response.err) return console.error(response.err);
+          if (!response.access_log) return;
+
+          const len = response.access_log.length;
+          // include only last 10 timestamps
+          const log = len < 11 ? response.access_log : response.access_log.slice(Math.max(len - 10, 0));
+
+          mapp.ui.elements.alert({
+            class: 'alert',
+            title: mapp.dictionary.admin_view.access_log_label,
+            text: mapp.utils.html`<span class="ws-pre">${log.join('\n')}`
+          })
+
+        }}>${mapp.dictionary.admin_view.view}</a></label>
+
+            <input type="text" id="access_log" name="access_log" disabled value=${user.access_log}>
+          </fieldset>  
+        </li>
+        ${form_verification_token}
+        ${form_failed_login}
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); padding: 0.5em;">
+          <button class="raised primary-colour">${mapp.dictionary.admin_view.save}</button>
+          <button class="raised primary-colour">
+            <input type="reset" value="${mapp.dictionary.admin_view.cancel}"/>
+          </button>
+          <button class="raised red"
+          onclick=${async e => {
+          e.preventDefault();
+          // get confirm dialog element
+
+          const confirm = await mapp.ui.elements.confirm({
+            text: mapp.utils.html`<span class="ws-pre">${user.email}\n${mapp.dictionary.admin_view.sure}\n${mapp.dictionary.admin_view.undone}`
+          })
+
+          if(confirm) {
+            const response = await mapp.utils.xhr(`${document.head.dataset.dir}/api/user/delete?email=${user.email}`);
+            if (response?.err) return console.error(response.err);
+            removeSearch();
+            // remove deleted row
+            document.querySelector(`#userTable table tr[data-email='${user.email}']`).remove();
+            // show confirmation
+            setTimeout(() => {
+              mapp.ui.elements.alert({
+                text: `${user.email}\n${mapp.dictionary.admin_view.deleted}`
+              })
+            }, 400)
+          } 
+
+        }}>${mapp.dictionary.admin_view.delete_user}</button>
+        `;
+
+      return form;
+    }
+
+    function openForm(user) {
+
+      // check if there's an email param passed
+      const url = new URL(window.location);
+      if (!url.searchParams.has('email')) {
+        url.searchParams.append('email', user.email);
+        history.pushState({}, "", url);
+      }
+
+      const mask = document.querySelector('.mask');
+      clearNode(mask);
+      mask.classList.remove('none');
+      const div = mapp.utils.html.node`<div class="form">`
+      const form = userForm(user);
+      div.appendChild(form);
+      mask.appendChild(div);
+    }
+    
+    function createUserData(user) {
+
+      const css = `${user.blocked ? `account-blocked none` : ``} ${user.email === cookieResponse.email ? `txt-hl` : ``}`;
+
+      const last_active = user.access_log ? new Date(user.access_log.split('@')[0]).toLocaleString('en-GB') : ``;
+      
+      // If the user has never logged in, last active date will be an empty string.
+      // If the user has logged in, last active date will be the date of the last login, so we can split the string to get the date.
+      const last_active_iso = last_active === "" ? null : user.access_log.split('@')[0];
+      
+      let active_roles;
+
+      if(typeof user.roles == 'string') {
+        active_roles = user.roles;
+      }
+
+      if(Array.isArray(user.roles)) {
+        active_roles = user.roles.length ? user.roles.join(', ') : '';
+      }
+
+      const status = checkUserStatus(user);
+
+      return {
+        css, last_active, last_active_iso, active_roles, status 
+      }
+
+    }
+
+    function createUserRow(user) {
+
+      const userData = createUserData(user);
+
+      return mapp.utils.html.node`<tr 
+          class="${userData.css}"
+          data-email=${user.email}
+          onclick=${e => {
+            e.stopPropagation();
+            openForm(user);
+          }}>
+          <td>${user.email}</td>
+          <td>${userData.status}</td>
+          <td class="desktop-only" data-iso=${userData.last_active_iso} title=${userData.last_active}>${userData.last_active}</td>
+          <td class="desktop-only" title=${userData.active_roles}>${userData.active_roles}</td>
+          </tr>`
+      
+    }
+
+    function updateUserRow(user) {
+
+      console.log(user);
+      // the entire row has to be replaced as it still opens the old data in the form
+
+      const table = document.querySelector('#userTable table');
+
+      const userData = createUserData(user);
+
+      if(typeof user.roles == 'string') user.roles = user.roles.split(',')
+
+      const updated_tr = mapp.utils.html.node`<tr 
+          class="${userData.css}"
+          data-email=${user.email}
+          onclick=${e => {
+            e.stopPropagation();
+            openForm(user);
+          }}>
+          <td>${user.email}</td>
+          <td>${userData.status}</td>
+          <td class="desktop-only" data-iso=${userData.last_active_iso} title=${userData.last_active}>${userData.last_active}</td>
+          <td class="desktop-only" title=${userData.active_roles}>${userData.active_roles}</td>
+          </tr>`
+
+      const tBody = table.tBodies[0];
+      const rows = Array.from(tBody.querySelectorAll("tr"));
+      
+      const prev_row = rows.find(row => row.dataset.email == user.email);
+      const prev_row_idx = rows.indexOf(prev_row);
+
+      rows.splice(prev_row_idx, 1, updated_tr);
+
+      clearNode(tBody);
+
+      tBody.append(...rows);
+
+
+
+       //tr.parentNode.insertBefore(updated_tr, tr);
+
+        //tr.remove();
+
+      /*console.log(userData);
+
+      const updatedCells = mapp.utils.html`
+      <td>${user.email}</td>
+      <td>${userData.status}</td>
+      <td class="desktop-only" data-iso=${userData.last_active_iso} title=${userData.last_active}>${userData.last_active}</td>
+      <td class="desktop-only" title=${userData.active_roles}>${userData.active_roles}</td>
+      `;
+
+      mapp.utils.render(tr, updatedCells);*/
+
+      /*tr.replaceChildren([
+        mapp.utils.html`<td>${user.email}`,
+        mapp.utils.html`<td>${userData.status}`,
+        mapp.utils.html`<td class="desktop-only" data-iso=${userData.last_active_iso} title=${userData.last_active}>${userData.last_active}`,
+        mapp.utils.html`<td class="desktop-only" title=${userData.active_roles_list}>${userData.active_roles_list}`,
+      ])*/
+
+    }
+
+    async function createUserTable() {
+
+      const userList = await getUserList();
+
+      const el = document.getElementById('userTable');
+      clearNode(el);
+
+      const table = mapp.utils.html.node`<table>
+      <thead>
+        <tr>
+          <th onclick=${headerCellClickEvent} class="asc">${mapp.dictionary.admin_view.email}</th>
+          <th onclick=${headerCellClickEvent}>${mapp.dictionary.admin_view.status}</th>
+          <th onclick=${headerCellClickEvent} class="desktop-only">${mapp.dictionary.admin_view.last_active}</th>
+          <th onclick=${headerCellClickEvent} class="desktop-only">${mapp.dictionary.admin_view.roles}</th>`;
+
+      const tbody = mapp.utils.html.node`<tbody>`
+
+      Object.values(userList).map(item => {
+
+        const userRow = createUserRow(item);
+
+        tbody.appendChild(userRow);
       });
 
+      table.appendChild(tbody);
 
-    await new Promise(resolve => userTable.on('tableBuilt', resolve))
+      el.appendChild(table);
 
-    let blocked = true
-    userTable.setFilter("blocked", "!=", true);
-    document.getElementById("toggleBlocked").onclick = e => {
+      const current_url = new URL(window.location);
+      if (current_url.searchParams.has('email')) {
+        const findUser = Object.values(userList).find(item => item.email === current_url.searchParams.get('email'));
+        if (findUser) openForm(findUser);
 
-      blocked = !blocked
+      }
+
+    }
+
+    async function getUserList() {
+
+      // Get user list from host.
+      const response = await mapp.utils.xhr(`${document.head.dataset.dir}/api/user/list`);
+
+      // Data must be an array if only 1 record returned in response.
+      const data = Array.isArray(response) ? response : [response];
+
+      data.forEach(row => {
+        row.re_verification = !row.verificationtoken
+      })
+
+      return data;
+
+    }
+
+    await createUserTable();
+
+    function removeSearch() {
+      // this function clears email parameter from window query string
+      const url = new URL(window.location);
+      url.searchParams.delete('email');
+      history.pushState({}, "", url);
+    }
+
+    // email address search
+    const searchAccounts = document.getElementById("filterInput");
+    searchAccounts.placeholder = mapp.dictionary.admin_view.search_accounts;
+    searchAccounts.addEventListener('input', e => {
+      // reset status search
+      filterStatus.value = '';
+
+      const table = document.querySelector('#userTable table');
+      const filter = e.target.value.toLowerCase();
+      const trs = table.querySelectorAll("tr");
+
+      for (const tr of trs) {
+        const td = tr.querySelector("td");
+        if (!td) continue;
+        tr.style.display = td.textContent.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+      }
+    })
+
+    const filterStatus = document.getElementById("filterStatus");
+    filterStatus.placeholder = mapp.dictionary.admin_view.filter_status;
+    // status filter
+    filterStatus.addEventListener('input', e => {
+
+      // reset email search
+      searchAccounts.value = '';
+
+      const table = document.querySelector('#userTable table');
+
+      const filter = e.target.value.toLowerCase();
+
+      const trs = table.querySelectorAll("tr");
+
+      for (const tr of trs) {
+        const td = tr.querySelectorAll("td")[1];
+        if (!td) continue;
+        tr.style.display = td.textContent.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+      }
+    })
+
+    document.getElementById("showBlocked").addEventListener('click', e => {
+
+      const blocked = e.target.checked;
 
       if (blocked) {
-        e.target.textContent = "Show blocked accounts"
-        userTable.setFilter("blocked", "!=", true)
+        Array.from(document.querySelectorAll('#userTable table tr.account-blocked')
+        ).map(el => el.classList.remove('none'));
         return;
       }
 
-      e.target.textContent = "Hide blocked accounts"
-      userTable.removeFilter("blocked", "!=", true)
-    }
+      Array.from(document.querySelectorAll('#userTable table tr.account-blocked'))
+        .map(el => el.classList.add('none'));
+    })
 
-    document.getElementById("filterInput").oninput = e => {
+    // table sorting
+    function sortTableByColumn(table, column, asc = true) {
+      const dirModifier = asc ? 1 : -1;
+      const tBody = table.tBodies[0];
+      const rows = Array.from(tBody.querySelectorAll("tr"));
 
-      // Check whether email or role includes filter term.
-      userTable.setData(data.filter(user => user.email.includes(e.target.value)
-        || user.roles.some(role => role.includes(e.target.value))))
-    }
+      // Sort each row
+      const sortedRows = rows.sort((a, b) => {
+        const td_a = a.querySelector(`td:nth-child(${column + 1})`);
+        const td_b = b.querySelector(`td:nth-child(${column + 1})`);
+        const aColText = td_a.textContent.trim().toLowerCase();
+        const bColText = td_b.textContent.trim().toLowerCase();
 
+        // check if column is a date
+        if (td_a.dataset.iso) {
+          return new Date(td_a.dataset.iso) > new Date(td_b.dataset.iso) ? (1 * dirModifier) : (-1 * dirModifier);
+        }
 
-    function expiryEdit(cell, onRendered, success, cancel) {
-
-      let rowData = cell.getRow().getData()
-      //create and style editor
-      let editor = document.createElement("input");
-
-      editor.setAttribute("type", "date");
-
-      // Set the value to the current date if the value is null and you are editing the cell.
-      if (!rowData.expires_on) {
-        const date = new Date();
-        editor.value = date.toISOString().slice(0, 10);
-      } else {
-        const date = new Date(rowData.expires_on * 1000);
-        editor.value = date.toISOString().slice(0, 10);
-      }
-
-      //create and style input
-      editor.style.padding = "3px";
-      editor.style.width = "100%";
-      editor.style.boxSizing = "border-box";
-
-      onRendered(function () {
-        editor.focus();
+        return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
       });
 
-      //when the value has been set, trigger the cell to update
-      function successFunc() {
-        const val = new Date(editor.value).getTime() / 1000 || null;
-        xhrPromise(`${document.head.dataset.dir}/api/user/update?email=${rowData.email}&field=expires_on&value=${val}`)
-        cell.setValue(val);
-      }
+      clearNode(tBody);
 
-      //editor.addEventListener("change", successFunc);
-      editor.addEventListener("blur", successFunc);
+      tBody.append(...sortedRows);
 
-      //return the editor element
-      return editor;
-    };
+      table.querySelectorAll("th").forEach(th => th.classList.remove("asc", "desc"));
+      table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("asc", asc);
+      table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("desc", !asc);
 
-    function languageEdited(e) {
-
-      if (JSON.stringify(e._cell.value) === JSON.stringify(e._cell.oldValue)) return;
-
-      xhrPromise(`${document.head.dataset.dir}/api/user/update?email=${e._cell.row.data.email}&field=language&value=${e._cell.value}`)
     }
 
-    async function cellToggle(e, cell) {
+    // table header cell click event - sorting
+    function headerCellClickEvent(e) {
+      e.stopPropagation();
+      const tableElement = document.querySelector('#userTable table');
+      const headerIndex = Array.prototype.indexOf.call(e.target.parentElement.children, e.target);
+      const currentIsAscending = e.target.classList.contains("asc");
+      sortTableByColumn(tableElement, headerIndex, !currentIsAscending);
 
-      const user = cell.getData();
-
-      const col = cell.getColumn();
-
-      const field = col.getField();
-
-      const cellValue = !cell.getValue();
-
-      //The value of the field will be set to null if the field is an api and the new value from the cell is false.
-      const cellFalsy = cellValue === false ? null : cellValue;
-      const apiValue = field === 'api' ? cellFalsy : cellValue;
-
-      // Re-verification cannot be undone.
-      if (field === 're_verification' && cell.getValue()) return;
-
-      const response = await xhrPromise(`${document.head.dataset.dir}/api/user/update?email=${user.email}&field=${field === 're_verification' ? 'verified' : field}&value=${apiValue}`);
-
-      if (response.err) return console.error(response.err);
-
-      cell.setValue(cellValue);
-
-      const row = cell.getRow();
-
-      if (field === 're_verification'
-        || (field === 'verified' && cell.getValue())) {
-
-        let re_verification_cell = row.getCell('re_verification')
-        re_verification_cell.setValue(true)
-
-        let verified_cell = row.getCell('verified')
-        verified_cell.setValue(true)
-
-        let approved_cell = row.getCell('approved')
-        approved_cell.setValue(true)
-      };
-
-      row.reformat();
-    };
-
-    async function getAccessLog(e, cell) {
-
-      const user = cell.getData();
-
-      const response = await xhrPromise(`${document.head.dataset.dir}/api/user/log?email=${user.email}`);
-
-      if (response.err) return console.error(response.err);
-
-      alert(response.access_log.join('\n'));
-    };
-
-    async function rowDelete(e, cell) {
-
-      const user = cell.getData();
-
-      const row = cell.getRow();
-
-      if (confirm('Delete account ' + user.email)) {
-
-        const response = await xhrPromise(`${document.head.dataset.dir}/api/user/delete?email=${user.email}`);
-
-        if (response.err) return console.error(response.err);
-
-        row.delete();
-      }
-    };
-
-    function rolesEdited(e) {
-
-      if (JSON.stringify(e._cell.value) === JSON.stringify(e._cell.oldValue)) return;
-
-      xhrPromise(`${document.head.dataset.dir}/api/user/update?email=${e._cell.row.data.email}&field=roles&value=${encodeURIComponent(e._cell.value)}`)
     }
+
+
   }
 
-  function xhrPromise(req) {
-    return new Promise((resolve, reject) => {
 
-      const xhr = new XMLHttpRequest()
 
-      xhr.open('GET', req)
-      xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.responseType = 'json'
-
-      xhr.onload = e => {
-        if (e.target.status >= 300) return reject({ err: e.target.status })
-        resolve(e.target.response || {})
-      }
-
-      xhr.send()
-    })
-  }
 </script>
 
 </html>
