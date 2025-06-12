@@ -1,13 +1,33 @@
 .btn-column {
+  position: absolute;
+  top: 0;
   display: grid;
   grid-auto-rows: minmax(min-content, 4em);
   padding: 0.7em;
+  overflow: scroll;
+  max-height: 100%;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & span {
+    line-height: normal;
+  }
 
   & button,
   & > div,
   & > a {
-    width: 2em;
-    height: 2em;
+    margin-bottom: 10px;
+    background-color: var(--color-base-tertiary);
+    box-shadow: 1px 1px 3px var(--color-base-tertiary);
+    border-radius: 50%;
+    opacity: 0.9;
+    padding: 5px;
+    width: 3em;
+    height: 3em;
+    text-align: center;
   }
 
   & a > div,
@@ -33,31 +53,4 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-}
-
-.interface-mask {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999999;
-  background-color: #eeea;
-
-  & > .bg-image {
-    margin: 5%;
-    height: 90%;
-    width: 90%;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-
-    & > .btn-close {
-      position: absolute;
-      top: 5%;
-      right: 5%;
-      width: 50px;
-      height: 50px;
-      background-color: var(--color-no);
-    }
-  }
 }

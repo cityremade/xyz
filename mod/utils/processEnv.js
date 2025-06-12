@@ -9,7 +9,7 @@ The processEnv utility script is required by the express web server app and the 
 @typedef {Object} xyzEnv
 The process.ENV object holds configuration provided to the node process from the launch environment. The environment configuration allows the provision of keys and secrets which must not be accessible from the client. All xyzEnv properties are limited to string type.
 @property {String} [DIR=''] The XYZ API path which concatenated with the domain for all requests.
-@property {String} [DBS_=''] DBS_* values are the connections used to establish connections to pg servers with the [dbs]{@link module:/utils/dbs} module. 
+@property {String} [DBS_=''] DBS_* values are the connections used to establish connections to pg servers with the [dbs]{@link module:/utils/dbs} module.
 @property {String} [PORT='3000'] The port on which the express app listens to for requests.
 @property {Integer} [COOKIE_TTL=36000] The Time To Live for all cookies issued by the XYZ API.
 @property {String} [TITLE='GEOLYTIX | XYZ'] The TITLE value is used to identify cookies and is provided to as a param to Application View templates.
@@ -29,10 +29,13 @@ The process.ENV object holds configuration provided to the node process from the
 @property {String} [WORKSPACE_AGE] The [workspace/cache module]{@link module:/mod/workspace/cache} flashes the workspace cache after the WORKSPACE_AGE is reached.
 @property {String} [CUSTOM_TEMPLATES] The [workspace/cache module]{@link module:/mod/workspace/cache} caches templates defined as a src in the CUSTOM_TEMPLATES xyzEnv.
 @property {String} [TRANSPORT] The [utils/mailer module]{@link module:/utils/mailer} requires a TRANSPORT xyzEnv.
-@property {String} [TRANSPORT_HOST] The [utils/mailer module]{@link module:/utils/mailer} requires a TRANSPORT xyzEnv.
-@property {String} [TRANSPORT_EMAIL] The [utils/mailer module]{@link module:/utils/mailer} requires a TRANSPORT xyzEnv.
-@property {String} [TRANSPORT_PASSWORD] The [utils/mailer module]{@link module:/utils/mailer} requires a TRANSPORT xyzEnv.
-@property {String} [TRANSPORT_PORT] The [utils/mailer module]{@link module:/utils/mailer} requires a TRANSPORT xyzEnv.
+@property {String} [TRANSPORT_HOST] The hostname or IP address that the [utils/mailer module]{@link module:/utils/mailer} module connects to.
+@property {String} [TRANSPORT_NAME] The optional hostname of the client, used for identifying to the server in the [utils/mailer module]{@link module:/utils/mailer} module.
+@property {String} [TRANSPORT_EMAIL] The email used to send emails in the [utils/mailer module]{@link module:/utils/mailer} module.
+@property {String} [TRANSPORT_USERNAME] The username used to authenticate in the [utils/mailer module]{@link module:/utils/mailer} module.
+@property {String} [TRANSPORT_PASSWORD] The password used to authenticate in the [utils/mailer module]{@link module:/utils/mailer} module.
+@property {String} [TRANSPORT_PORT] The port used to connect to the host in the [utils/mailer module]{@link module:/utils/mailer} module.
+@property {String} [TRANSPORT_TLS] defines additional node.js TLSSocket options to be passed to the socket constructor used in the [utils/mailer module]{@link module:/utils/mailer} module.
 @property {String} [USER_DOMAINS] The [user/register module]{@link module:/user/register} will limit the registration to user emails for domains provided in the comma seperated USER_DOMAINS xyzEnv.
 @property {String} [SRC_] SRC_* values will replace the key wildcard [*] in the stringified workspace.
 @property {String} [KEY_CLOUDFRONT] A key [*.pem] file matching the KEY_CLOUDFRONT value is required for authentication requests in the [cloudfront]{@link module:/provider/cloudfront} provider module.
@@ -54,16 +57,16 @@ The process.ENV object holds configuration provided to the node process from the
 */
 
 const defaults = {
-  PORT: 3000,
-  DIR: '',
-  TITLE: 'GEOLYTIX | XYZ',
-  WORKSPACE_AGE: 3600000, // age in ms
   COOKIE_TTL: 36000,
+  DIR: '',
   FAILED_ATTEMPTS: 3,
+  PORT: 3000, // age in ms
+  RATE_LIMIT: 1000,
+  RATE_LIMIT_WINDOW: 60 * 1000,
   RETRY_LIMIT: 3,
-  TRANSPORT_TLS: false,
-  RATE_LIMIT: 1000, //1000 requests per 1min
-  RATE_LIMIT_WINDOW: 60 * 1000, // 1 min
+  TITLE: 'GEOLYTIX | XYZ',
+  TRANSPORT_TLS: false, //1000 requests per 1min
+  WORKSPACE_AGE: 3600000, // 1 min
 };
 
 process.env.PORT ??= defaults.PORT;
@@ -78,16 +81,16 @@ process.env.RATE_LIMIT_WINDOW ??= defaults.RATE_LIMIT_WINDOW;
 process.env.RATE_LIMIT ??= defaults.RATE_LIMIT;
 
 const xyzEnv = {
-  PORT: process.env.PORT,
-  DIR: process.env.DIR,
-  TITLE: process.env.TITLE,
-  WORKSPACE_AGE: process.env.WORKSPACE_AGE,
   COOKIE_TTL: parseInt(process.env.COOKIE_TTL),
-  RATE_LIMIT_WINDOW: process.env.RATE_LIMIT_WINDOW,
-  RATE_LIMIT: process.env.RATE_LIMIT,
+  DIR: process.env.DIR,
   FAILED_ATTEMPTS: process.env.FAILED_ATTEMPTS,
+  PORT: process.env.PORT,
+  RATE_LIMIT: process.env.RATE_LIMIT,
+  RATE_LIMIT_WINDOW: process.env.RATE_LIMIT_WINDOW,
   RETRY_LIMIT: process.env.RETRY_LIMIT,
+  TITLE: process.env.TITLE,
   TRANSPORT_TLS: process.env.TRANSPORT_TLS,
+  WORKSPACE_AGE: process.env.WORKSPACE_AGE,
 };
 
 // Add remaining env vars

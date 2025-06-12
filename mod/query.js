@@ -12,21 +12,15 @@ The query module exports the [SQL] query method to pass queries to the stored db
 @module /query
 */
 
+import login from './user/login.js';
 import dbs_connections from './utils/dbs.js';
-
+import logger from './utils/logger.js';
+import * as Roles from './utils/roles.js';
 import sqlFilter from './utils/sqlFilter.js';
 
-import * as Roles from './utils/roles.js';
-
-import logger from './utils/logger.js';
-
-import login from './user/login.js';
-
 import workspaceCache from './workspace/cache.js';
-
-import getTemplate from './workspace/getTemplate.js';
-
 import getLayer from './workspace/getLayer.js';
+import getTemplate from './workspace/getTemplate.js';
 
 /**
 @function query
@@ -62,8 +56,8 @@ export default async function query(req, res) {
   // Get the template.
   const template = await getTemplate(req.params.template);
 
-  if (template instanceof Error) {
-    return res.status(500).send(template.message);
+  if (template.err instanceof Error) {
+    return res.status(500).send(template.err.message);
   }
 
   // A layer template must have a layer param.
@@ -182,10 +176,10 @@ async function layerQuery(req, res) {
   // Create filter condition for SQL query.
   req.params.filter = [
     (req.params.layer.filter?.default &&
-      `AND ${sqlFilter(req.params.layer.filter.default, req.params.SQL)}`) ||
+      `AND ${sqlFilter(req.params.layer.filter.default, req)}`) ||
       '',
     (req.params.filter &&
-      `AND ${sqlFilter(JSON.parse(req.params.filter), req.params.SQL)}`) ||
+      `AND ${sqlFilter(JSON.parse(req.params.filter), req)}`) ||
       '',
   ].join(' ');
 
@@ -298,7 +292,7 @@ async function fieldsMap(req, res) {
     if (Object.hasOwn(req.params.workspace.templates, field)) {
       const fieldTemplate = await getTemplate(field);
 
-      value = fieldTemplate.template || '';
+      value = fieldTemplate.field || field;
     }
 
     req.params.fieldsMap.set(field, value);
@@ -314,7 +308,7 @@ The method assigns the infojMap object property to the request params for layer 
 
 The method iterates over the layer.infoj entries and only assigns entry fields valid for a location_get request.
 
-A lookup of template strings in the workspace.templates for the infojMap entry.field key/value is attempted.
+A lookup of template [SQL] strings is attempted only if the template is defined in the entry object.
 
 @param {req} req HTTP request.
 @param {res} res HTTP response.
@@ -343,7 +337,10 @@ async function infojMap(req, res) {
     let value = entry.field;
 
     // Check for workspace.template matching the entry.field.
-    if (Object.hasOwn(req.params.workspace.templates, entry.field)) {
+    if (
+      entry.template &&
+      Object.hasOwn(req.params.workspace.templates, entry.field)
+    ) {
       const fieldTemplate = await getTemplate(entry.field);
 
       // Core templates should not be included in the infojMap.
@@ -399,7 +396,7 @@ function getQueryFromTemplate(req, template) {
     if (req.params.sqlFilter) {
       req.params.filter =
         req.params.filter ||
-        `AND ${sqlFilter(JSON.parse(req.params.sqlFilter), req.params.SQL)}`;
+        `AND ${sqlFilter(JSON.parse(req.params.sqlFilter), req)}`;
     }
 
     // Returns -1 if ${filter} not found in template

@@ -11,7 +11,6 @@ const api = require('./api/api')
 app.get(`/`, api)
 ```
 
-@requires /fetch
 @requires /utils/processEnv
 @requires /query
 @requires /view
@@ -43,29 +42,26 @@ The req object represents the HTTP request and has properties for the request qu
 */
 
 import '../mod/utils/processEnv.js';
-import login from '../mod/user/login.js';
-import auth from '../mod/user/auth.js';
-import saml from '../mod/user/saml.js';
-import register from '../mod/user/register.js';
-import logger from '../mod/utils/logger.js';
-
-//Route imports
-import fetch from '../mod/fetch.js';
-import query from '../mod/query.js';
-import view from '../mod/view.js';
 import provider from '../mod/provider/_provider.js';
+//Route imports
+import query from '../mod/query.js';
 import sign from '../mod/sign/_sign.js';
 import user from '../mod/user/_user.js';
+import auth from '../mod/user/auth.js';
+import login from '../mod/user/login.js';
+import register from '../mod/user/register.js';
+import saml from '../mod/user/saml.js';
+import logger from '../mod/utils/logger.js';
+import view from '../mod/view.js';
 import workspace from '../mod/workspace/_workspace.js';
 
 // Group all routes
 const routes = {
-  fetch,
-  query,
-  view,
   provider,
+  query,
   sign,
   user,
+  view,
   workspace,
 };
 
@@ -259,11 +255,6 @@ function requestRouter(req, res) {
       routes.query(req, res);
       break;
 
-    // Fetch API
-    case /(?<=\/api\/fetch)/.test(req.url):
-      routes.fetch(req, res);
-      break;
-
     case /(?<=\/api\/workspace)/.test(req.url):
       routes.workspace(req, res);
       break;
@@ -350,7 +341,8 @@ function validateRequestParams(req) {
     // Check whether the params value begins and ends with square braces.
     if (params[key].match(/^\[.*\]$/)) {
       // Match the string between square brackets and split into an array with undefined array values filtered out.
-      params[key] = match(/^\[(.*)\]$/)[1]
+      params[key] = params[key]
+        .match(/^\[(.*)\]$/)[1]
         .split(',')
         .filter(Boolean);
     }

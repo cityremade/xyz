@@ -25,6 +25,7 @@ caddy_linux_amd64
 \.ebextensions/
 
 public/js/*
+!public/js/mapbox-gl-rtl-text.js
 
 *.pem
 *.crt
@@ -34,4 +35,4 @@ public/js/*
 !package.json
 !jsdoc*.json
 !codi.json
-!.prettierrc.json
+!biome.json

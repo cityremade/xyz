@@ -12,6 +12,7 @@ The workspace typedef object has templates, locale, locales, dbs, and roles prop
 @requires /workspace/cache
 @requires /workspace/getLocale
 @requires /workspace/getLayer
+@requires /workspace/getTemplate
 @requires /utils/roles
 
 @module /workspace
@@ -30,10 +31,8 @@ The workspace object defines the mapp resources available in an XYZ instance.
 import * as Roles from '../utils/roles.js';
 
 import workspaceCache from './cache.js';
-
-import getLocale from './getLocale.js';
-
 import getLayer from './getLayer.js';
+import getLocale from './getLocale.js';
 
 import getTemplate from './getTemplate.js';
 
@@ -111,23 +110,32 @@ async function layer(req, res) {
 
 /**
 @function locales
+@async
 
 @description
 The locales method reduces the workspace.locales{} object to an array locales with only the key and name properties.
 
 The locales are not merged with templates and only roles defined inside the workspace.locales{} locale object are considered for access.
 
+The nestedLocales method will be returned if a locale property is provided in the request params.
+
 @param {req} req HTTP request.
 @param {res} res HTTP response.
 @property {Object} req.params HTTP request params.
+@property {string} [params.locale] Request nested locales for the locale.
 @property {Object} [params.user] User requesting the locales.
 
 @returns {res} The HTTP response with either an error.message or JSON array of locales in workspace.
 */
-function locales(req, res) {
+async function locales(req, res) {
   // Add default role * to all users.
   if (Array.isArray(req.params.user?.roles)) {
     req.params.user.roles.push('*');
+  }
+
+  if (req.params.locale) {
+    getNestedLocales(req, res);
+    return;
   }
 
   const locales = Object.values(workspace.locales)
@@ -135,9 +143,67 @@ function locales(req, res) {
     .map((locale) => ({
       key: locale.key,
       name: locale.name,
+      locales: locale.locales,
     }));
 
   res.send(locales);
+}
+
+/**
+@function getNestedLocales
+@async
+
+@description
+The getNestedLocales is returned if the locales method is called with a locale
+property.
+
+The locale will be requested from the getLocale module. An array of nested
+locales defined in the locales property of the locale is checked for user access.
+
+Nested locales accessible to the user are returned. The key for a nested locale
+is an array left to right. For `[UK,London]` the London locale will be nested
+in the UK locale. The name for a nested locale will be concatenated like so
+`UK/London`.
+
+@param {req} req HTTP request.
+@param {res} res HTTP response.
+@property {Object} req.params HTTP request params.
+@property {string} params.locale Request nested locales for the locale.
+@property {Object} [params.user] User requesting the locales.
+
+@returns {res} The HTTP response with either an error.message or JSON array of
+locales in workspace.
+*/
+async function getNestedLocales(req, res) {
+  // The locale property is required for nested locales.
+  if (!req.params.locale) return;
+
+  const locale = await getLocale(req.params);
+
+  if (locale instanceof Error) {
+    return res.status(400).send(locale.message);
+  }
+
+  const nestedLocales = [];
+
+  if (!Array.isArray(locale.locales)) {
+    res.send(nestedLocales);
+    return;
+  }
+
+  for (const key of locale.locales) {
+    const nestedLocale = await getTemplate(key);
+
+    if (!Roles.check(nestedLocale, req.params.user?.roles)) continue;
+
+    nestedLocales.push({
+      key: `[${locale.key},${key}]`,
+      name: `${locale.name}/${nestedLocale.name || key}`,
+      locales: nestedLocale.locales,
+    });
+  }
+
+  res.send(nestedLocales);
 }
 
 /**
@@ -172,14 +238,21 @@ async function locale(req, res) {
     return res.status(400).send(locale.message);
   }
 
+  if (Array.isArray(locale.keys)) {
+    req.params.locale = locale.keys;
+  }
+
   // Return layer object instead of array of layer keys
   if (req.params.layers) {
     const layers = Object.keys(locale.layers).map(
       async (key) =>
-        await getLayer({
-          ...req.params,
-          layer: key,
-        }),
+        await getLayer(
+          {
+            ...req.params,
+            layer: key,
+          },
+          locale,
+        ),
     );
 
     await Promise.all(layers).then((layers) => {
@@ -221,9 +294,9 @@ An object with detailed workspace.roles{} can be requested with the `detail=true
 @param {req} req HTTP request.
 @param {req} res HTTP response.
 
-@property {Object} req.params 
+@property {Object} req.params
 HTTP request parameter.
-@property {Boolean} params.detail 
+@property {Boolean} params.detail
 Whether the roles should be returned as an object with details.
 
 @returns {Array|Object} Returns either an array of roles as string, or an object with roles as properties.
@@ -287,9 +360,9 @@ A flat array of template.err will be returned from the workspace/test method.
 @param {req} req HTTP request.
 @param {req} res HTTP response.
 
-@property {Object} req.params 
+@property {Object} req.params
 HTTP request parameter.
-@property {Object} params.user 
+@property {Object} params.user
 The user requesting the test method.
 @property {Boolean} user.admin
 The user is required to have admin priviliges.
@@ -306,10 +379,10 @@ async function test(req, res) {
   workspace = await workspaceCache(true);
 
   const test = {
-    results: {},
     errArr: [],
-    used_templates: [],
     properties: new Set(['template', 'templates', 'query']),
+    results: {},
+    used_templates: [],
   };
 
   test.workspace_templates = new Set(
@@ -342,8 +415,8 @@ async function test(req, res) {
     for (const layerKey of Object.keys(locale.layers)) {
       // Will get layer and assignTemplates to workspace.
       const layer = await getLayer({
-        locale: localeKey,
         layer: layerKey,
+        locale: localeKey,
         user: req.params.user,
       });
 
@@ -447,7 +520,7 @@ function templateUse(obj, test) {
 
 /**
 @function removeRoles
-@description 
+@description
 Recursively removes all 'roles' objects from the provided object [locale, layer].
 This function is designed to sanitize locale configuration objects before sending to the client,
 ensuring that role-based permissions data is not exposed.

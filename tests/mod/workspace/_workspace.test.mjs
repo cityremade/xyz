@@ -1,172 +1,176 @@
-/**
- * ## workspaceTest()
- * @module mod/workspace
- */
+import getKeyMethod from '../../../mod/workspace/_workspace.js';
+import checkWorkspaceCache from '../../../mod/workspace/cache.js';
 
-import { getLayerTest } from './getLayer.test.mjs';
-import { getLocaleTest } from './getLocale.test.mjs';
-import { getTemplateTest } from './getTemplate.test.mjs';
+await codi.describe({ name: 'workspace:', id: 'workspace' }, async () => {
+  globalThis.xyzEnv = {
+    TITLE: 'WORKSPACE TEST',
+    WORKSPACE: 'file:./tests/assets/workspace_nested_locales.json',
+  };
 
-/**
- * This function is used as an entry point for the changeEndTest
- * This function is also in a function as to not execute in the CLI environment and only execute in a browser.
- * @function workspaceTest
- * @param {Object} mapview
- */
+  //Calling the cache method with force to reload a new workspace
+  await checkWorkspaceCache(true);
 
-export const workspaceSuite = {
-  workspaceTest,
-  getLayerTest,
-  getLocaleTest,
-  getTemplateTest,
-};
-
-async function workspaceTest(mapview) {
-  await codi.describe('Workspace: Testing Workspace API', async () => {
-    await codi.it('Workspace: Getting Roles', async () => {
-      const roles = await mapp.utils.xhr(`/test/api/workspace/roles`);
-
-      const expected_roles = [
-        'A',
-        'B',
-        'merge_into',
-        'C',
-        'test',
-        'super_test',
-        'roles_test',
+  await codi.describe(
+    {
+      name: 'Test method keys',
+      id: 'workspace_keyMethod',
+      parentId: 'workspace',
+    },
+    async () => {
+      const testMethods = [
+        { key: 'layer', value: 'OSM' },
+        { key: 'locale', value: '' },
+        { key: 'locales', value: '' },
+        { key: 'roles', value: '' },
+        { key: 'test', value: '' },
       ];
 
-      codi.assertEqual(
-        roles,
-        expected_roles,
-        'Ensure that we get the correct roles from the API',
-      );
-    });
-
-    await codi.it(
-      'Should return an array of roles as defined in the workspace',
-      async () => {
-        const response = await fetch('api/workspace/roles');
-        const roles = await response.json();
-        // Check the response is an array
-        codi.assertTrue(Array.isArray(roles));
-
-        // Check the response contains 'A', 'B', 'C'
-        await codi.it('Roles should contain A', async () => {
-          codi.assertTrue(roles.includes('A'));
-        });
-
-        await codi.it('Roles should contain B', async () => {
-          codi.assertTrue(roles.includes('B'));
-        });
-
-        await codi.it('Roles should contain C', async () => {
-          codi.assertTrue(roles.includes('C'));
-        });
-
-        // Check the response does not contain the reserved role '*'
-        await codi.it('Roles should not contain *', async () => {
-          codi.assertTrue(!roles.includes('*'));
-        });
-      },
-    );
-
-    await codi.it(
-      'Should return an object of workspace roles with definitions',
-      async () => {
-        const response = await fetch('api/workspace/roles?detail=true');
-        const roles = await response.json();
-        // Check the response is an object
-        codi.assertTrue(typeof roles === 'object');
-
-        await codi.it(
-          'Roles object should contain A with value = Text about A',
+      testMethods.forEach((testMethod) => {
+        codi.it(
+          { name: `${testMethod.key}`, parentId: 'workspace_keyMethod' },
           async () => {
-            // Check the object contains 'A' role with text' Text about A'
-            codi.assertTrue(roles.A === 'Text about A');
+            const { req, res } = codi.mockHttp.createMocks({
+              params: { key: testMethod.key, layer: testMethod.value },
+            });
+
+            await getKeyMethod(req, res);
+            const result = res._getData();
+
+            codi.assertTrue(
+              result !== null,
+              `Need to ensure we get a response from ${testMethod.key}`,
+            );
           },
         );
+      });
+    },
+  );
 
-        await codi.it(
-          'Roles object should contain B with value = Text about A',
-          async () => {
-            // Check the object contains 'B' role with text' Text about B'
-            codi.assertTrue(roles.B === 'Text about B');
+  codi.it(
+    { name: 'nested locales', parentId: 'workspace', id: 'workspace_locales' },
+    async () => {
+      const expectedLayers = ['OSM', 'brand_a_layer', 'brand_b_layer'];
+      const expectedKeys = ['europe', 'brand_a_locale', 'brand_b_locale'];
+      const expectedName = 'europe/brand_a_locale/brand_b_locale';
+
+      const { req, res } = codi.mockHttp.createMocks({
+        params: {
+          key: 'locale',
+          locale: ['europe', 'brand_a_locale', 'brand_b_locale'],
+          user: {
+            roles: ['europe', 'brand_b'],
           },
-        );
+        },
+      });
 
-        await codi.it(
-          'Roles object should contain C with value = {}',
-          async () => {
-            // Check the object contains 'C' role as an object
-            // this is as its not added to the roles object in the workspace
-            // So it gets added as an object
-            codi.assertTrue(typeof roles.C === 'object');
+      await getKeyMethod(req, res);
+
+      let result = res._getData();
+
+      result = JSON.parse(result);
+
+      codi.assertEqual(
+        result.layers,
+        expectedLayers,
+        `We expect to get ${expectedLayers}, received: ${result.layers}`,
+      );
+
+      codi.assertEqual(
+        result.keys,
+        expectedKeys,
+        `We expect to get ${expectedKeys}, received: ${result.keys}`,
+      );
+
+      codi.assertEqual(
+        result.name,
+        expectedName,
+        `We expect to get ${expectedName}, received: ${result.name}`,
+      );
+    },
+  );
+
+  codi.it(
+    { name: 'nested locales', parentId: 'workspace', id: 'workspace_locales' },
+    async () => {
+      const expectedMessage = 'Role access denied.';
+
+      const { req, res } = codi.mockHttp.createMocks({
+        params: {
+          key: 'locale',
+          locale: ['us', 'brand_a_locale', 'brand_b_locale', 'UK_locale'],
+          user: {
+            roles: ['us', 'brand_b'],
           },
-        );
+        },
+      });
 
-        await codi.it('Roles object should not contain *', async () => {
-          // Check the reserved role '*' is not included in the object
-          codi.assertTrue(!roles['*']);
-        });
-      },
-    );
+      await getKeyMethod(req, res);
 
-    await codi.it('Should not return a layer with roles defined', async () => {
-      const layer = await mapp.utils.xhr(
-        `/test/api/workspace/layer?layer=roles_test`,
-      );
-      codi.assertTrue(
-        layer instanceof Error,
-        'we should receive an error when trying to access this layer',
-      );
-    });
+      const message = res._getData();
+      const code = res.statusCode;
 
-    await codi.it('Workspace: Testing the test endpoint', async () => {
-      let workspace_test = await mapp.utils.xhr(`/test/api/workspace/test`);
-
-      const counts = {
-        errors: workspace_test.errors.length,
-        overwritten_templates: workspace_test.overwritten_templates.length,
-        unused_templates: workspace_test.unused_templates.length,
-        usage: Object.keys(workspace_test.usage).length,
-      };
-
-      codi.assertTrue(
-        workspace_test.errors.length > 0,
-        'The errors array needs to have more than 1 entry',
-      );
-      codi.assertTrue(
-        workspace_test.unused_templates.length > 0,
-        'The unsused templates array needs to have more than 1 entry',
-      );
-      codi.assertTrue(
-        Object.keys(workspace_test.usage).length > 0,
-        'The usage object needs to have keys',
-      );
-
-      workspace_test = await mapp.utils.xhr(`/test/api/workspace/test`);
+      codi.assertEqual(code, 400, 'We expect to get a bad request.');
 
       codi.assertEqual(
-        workspace_test.errors.length,
-        counts.errors,
-        'The errors array needs to have the same number of entries we did the first run',
+        message,
+        expectedMessage,
+        'We should get a roles denial message',
       );
+    },
+  );
+
+  codi.it(
+    {
+      name: 'nested locales bogus roles',
+      parentId: 'workspace',
+      id: 'workspace_locales',
+    },
+    async () => {
+      const expectedMessage = 'Role access denied.';
+      const { req, res } = codi.mockHttp.createMocks({
+        params: {
+          key: 'locale',
+          locale: ['europe', 'brand_a_locale', 'brand_b_locale'],
+          user: {
+            roles: ['us', 'brand_b'],
+          },
+        },
+      });
+
+      await getKeyMethod(req, res);
+
+      const message = res._getData();
+      const code = res.statusCode;
+
+      codi.assertEqual(code, 400, 'We expect to get a bad request.');
+
       codi.assertEqual(
-        workspace_test.overwritten_templates.length,
-        counts.overwritten_templates,
-        'The overwritten templates array needs to have the same number of entries we did the first run',
+        message,
+        expectedMessage,
+        'We should get a roles denial message',
       );
-      codi.assertEqual(
-        workspace_test.unused_templates.length,
-        counts.unused_templates,
-        'The unused templates array needs to have the same number of entries we did the first run',
-      );
-      codi.assertEqual(
-        Object.keys(workspace_test.usage).length,
-        counts.usage,
-        'The usage templates object needs to have the same number of entries we did the first run',
-      );
-    });
-  });
-}
+    },
+  );
+
+  codi.it(
+    {
+      name: 'nested locales bogus locale',
+      parentId: 'workspace',
+      id: 'workspace_locales',
+    },
+    async () => {
+      const { req, res } = codi.mockHttp.createMocks({
+        params: {
+          key: 'locale',
+          locale: ['notALocale', 'anotherincorrectone', 'Idontexist'],
+        },
+      });
+
+      await getKeyMethod(req, res);
+
+      const code = res.statusCode;
+
+      codi.assertEqual(code, 400, 'We expect to get a bad request.');
+    },
+  );
+});
