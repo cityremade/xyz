@@ -44,8 +44,8 @@ RATE_LIMIT_WINDOW - Time window in ms (default: 1 min)
 import 'dotenv/config';
 import './mod/utils/processEnv.js';
 
-import express from 'express';
 import cookieParser from 'cookie-parser';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
 
 import api from './api/api.js';
@@ -59,10 +59,10 @@ const app = express();
 app.disable('x-powered-by');
 
 const limiter = rateLimit({
-  windowMs: xyzEnv.RATE_LIMIT_WINDOW,
+  legacyHeaders: false,
   limit: xyzEnv.RATE_LIMIT,
   standardHeaders: 'draft-8',
-  legacyHeaders: false,
+  windowMs: xyzEnv.RATE_LIMIT_WINDOW,
 });
 
 app.use(limiter);
@@ -84,30 +84,30 @@ app.use(xyzEnv.DIR, express.static('tests'));
 
 app.use(cookieParser());
 
-app.get(`${xyzEnv.DIR}/api/provider/:provider?`, api);
+app.get(`${xyzEnv.DIR}/api/provider{/:provider}`, api);
 
 app.post(
-  `${xyzEnv.DIR}/api/provider/:provider?`,
+  `${xyzEnv.DIR}/api/provider{/:provider}`,
   express.json({ limit: '5mb' }),
   api,
 );
 
-app.get(`${xyzEnv.DIR || ''}/api/sign/:signer?`, api);
+app.get(`${xyzEnv.DIR || ''}/api/sign{/:signer}`, api);
 
-app.get(`${xyzEnv.DIR}/api/query/:template?`, api);
+app.get(`${xyzEnv.DIR}/api/query{/:template}`, api);
 
 app.post(
-  `${xyzEnv.DIR}/api/query/:template?`,
+  `${xyzEnv.DIR}/api/query{/:template}`,
   express.json({ limit: '5mb' }),
   api,
 );
 
-app.get(`${xyzEnv.DIR}/api/workspace/:key?`, api);
+app.get(`${xyzEnv.DIR}/api/workspace{/:key}`, api);
 
-app.get(`${xyzEnv.DIR}/api/user/:method?/:key?`, api);
+app.get(`${xyzEnv.DIR}/api/user{/:method}{/:key}`, api);
 
 app.post(
-  `${xyzEnv.DIR}/api/user/:method?`,
+  `${xyzEnv.DIR}/api/user{/:method}`,
   [express.urlencoded({ extended: true }), express.json({ limit: '5mb' })],
   api,
 );
@@ -120,9 +120,9 @@ app.get(`${xyzEnv.DIR}/saml/login`, api);
 
 app.post(`${xyzEnv.DIR}/saml/acs`, express.urlencoded({ extended: true }), api);
 
-app.get(`${xyzEnv.DIR}/view/:template?`, api);
+app.get(`${xyzEnv.DIR}/view{/:template}`, api);
 
-app.get(`${xyzEnv.DIR}/:locale?`, api);
+app.get(`${xyzEnv.DIR}{/:locale}`, api);
 
 app.get(`/`, api);
 

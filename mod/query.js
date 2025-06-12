@@ -12,21 +12,15 @@ The query module exports the [SQL] query method to pass queries to the stored db
 @module /query
 */
 
+import login from './user/login.js';
 import dbs_connections from './utils/dbs.js';
-
+import logger from './utils/logger.js';
+import * as Roles from './utils/roles.js';
 import sqlFilter from './utils/sqlFilter.js';
 
-import * as Roles from './utils/roles.js';
-
-import logger from './utils/logger.js';
-
-import login from './user/login.js';
-
 import workspaceCache from './workspace/cache.js';
-
-import getTemplate from './workspace/getTemplate.js';
-
 import getLayer from './workspace/getLayer.js';
+import getTemplate from './workspace/getTemplate.js';
 
 /**
 @function query
@@ -182,10 +176,10 @@ async function layerQuery(req, res) {
   // Create filter condition for SQL query.
   req.params.filter = [
     (req.params.layer.filter?.default &&
-      `AND ${sqlFilter(req.params.layer.filter.default, req.params.SQL)}`) ||
+      `AND ${sqlFilter(req.params.layer.filter.default, req)}`) ||
       '',
     (req.params.filter &&
-      `AND ${sqlFilter(JSON.parse(req.params.filter), req.params.SQL)}`) ||
+      `AND ${sqlFilter(JSON.parse(req.params.filter), req)}`) ||
       '',
   ].join(' ');
 
@@ -402,7 +396,7 @@ function getQueryFromTemplate(req, template) {
     if (req.params.sqlFilter) {
       req.params.filter =
         req.params.filter ||
-        `AND ${sqlFilter(JSON.parse(req.params.sqlFilter), req.params.SQL)}`;
+        `AND ${sqlFilter(JSON.parse(req.params.sqlFilter), req)}`;
     }
 
     // Returns -1 if ${filter} not found in template
