@@ -58,7 +58,7 @@ export default async function apiKey(req, res) {
 
   const user = rows[0];
 
-  if (!user || !user.api || !user.verified || !user.approved || user.blocked) {
+  if (!user?.api || !user.verified || !user.approved || user.blocked) {
     return res.status(401).send('Unauthorized access.');
   }
 
@@ -69,7 +69,9 @@ export default async function apiKey(req, res) {
     roles: user.roles,
   };
 
-  const key = jwt.sign(api_user, xyzEnv.SECRET);
+  const key = jwt.sign(api_user, xyzEnv.SECRET, {
+    algorithm: xyzEnv.SECRET_ALGORITHM,
+  });
 
   // Store api_token in ACL.
   rows = await acl(

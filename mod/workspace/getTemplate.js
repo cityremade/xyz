@@ -3,7 +3,6 @@
 The module exports the getTemplate method which is required by the query, languageTemplates, getLayer, and getLocale modules.
 
 @requires /provider/getFrom
-@requires /utils/merge
 @requires /workspace/cache
 @requires module:/utils/processEnv
 
@@ -12,7 +11,6 @@ The module exports the getTemplate method which is required by the query, langua
 
 import getFrom from '../provider/getFrom.js';
 import envReplace from '../utils/envReplace.js';
-import merge from '../utils/merge.js';
 import workspaceCache from './cache.js';
 
 /**
@@ -48,6 +46,9 @@ The key will be assigned to the template object as key property.
 @returns {Promise<Object|Error>} JSON Template
 */
 export default async function getTemplate(key) {
+  if (key === undefined) {
+    return new Error('Undefined template key.');
+  }
   const workspace = await workspaceCache();
 
   if (workspace instanceof Error) {
@@ -57,20 +58,19 @@ export default async function getTemplate(key) {
   let template;
   if (typeof key === 'string') {
     template = await getTemplateObject(workspace, key);
-
-    if (template instanceof Error) {
-      return template;
-    }
-
-    // The template.key property value must be the same as the key reference in the workspace.templates{}
-    template.key = key;
   } else if (key instanceof Object) {
     template = key;
   }
 
+  if (template instanceof Error) {
+    return template;
+  }
+
   if (!template.src) {
     return template;
-  } else if (!template.key) {
+  }
+
+  if (!template.key) {
     template =
       (await getTemplateObject(workspace, null, template.src)) || template;
   }
@@ -93,17 +93,20 @@ export default async function getTemplate(key) {
     response = await getFrom[method](template.src);
 
     if (response instanceof Error) {
+      template.err = response;
       return response;
     }
   }
 
   // Template is a module.
   if (template.module) {
-    return await moduleTemplate(template, response);
+    template = await moduleTemplate(template, response);
+    return template;
   }
 
   if (typeof response === 'object') {
-    return await cacheTemplate(workspace, template, response);
+    template = await cacheTemplate(workspace, template, response);
+    return template;
   } else if (typeof response === 'string') {
     template.template = response;
   }
@@ -116,8 +119,6 @@ export default async function getTemplate(key) {
 @async
 
 @description
-
-
 A template object matching the template_key param in the workspace.templates{} object will be returned.
 
 The template string will be checked to include only whitelisted characters.
@@ -131,7 +132,7 @@ An error exception will be returned if the template object lookup from the works
 async function getTemplateObject(workspace, templateKey, srcKey) {
   // The template param must not include non whitelisted character.
   if (templateKey && /[^a-zA-Z0-9 :_-]/.exec(templateKey)) {
-    return new Error(`Template param may only include whitelisted character.`);
+    return new Error('Template param may only include whitelisted character.');
   }
 
   if (srcKey && Object.hasOwn(workspace.templates, srcKey)) {
@@ -143,6 +144,8 @@ async function getTemplateObject(workspace, templateKey, srcKey) {
   if (!Object.hasOwn(workspace.templates, templateKey)) {
     return new Error(`Template: ${templateKey} not found.`);
   }
+
+  workspace.templates[templateKey].key = templateKey;
 
   return workspace.templates[templateKey];
 }
@@ -182,11 +185,11 @@ async function moduleTemplate(template, response) {
 @async
 
 @description
-The method assigns the response object to the template object and removes the src property. 
+The method assigns the response object to the template object and removes the src property.
 
 This effectively caches the template since the src to fetch the template is removed.
 
-A src property is assigned as key for an object without an key property. 
+A src property is assigned as key for an object without an key property.
 
 This allows to cache templates which should be merged into their respective parent objects.
 
