@@ -30,7 +30,9 @@ label.radio {
     content: 'radio_button_unchecked';
   }
 
-  & input[type='radio']:checked + .material-symbols-outlined:first-of-type:after {
+  &
+    input[type='radio']:checked
+    + .material-symbols-outlined:first-of-type:after {
     content: 'radio_button_checked';
   }
 
