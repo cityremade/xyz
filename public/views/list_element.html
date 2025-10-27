@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="{{language}}">
+
+<head data-dir="{{dir}}" data-login="{{login}}">
+    <title>MAPP | User Administration</title>
+    <link rel="icon" type="image/x-icon" href="{{dir}}/public/icons/favicon.ico">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/ol@v10.6.1/dist/ol.js" integrity="sha384-R02sHnzL8yl/uvLZvMsfgBOMBIOOHLpuLNo4dLuWQWFun1sxEWJej+SPwiGxaeGd" crossorigin="anonymous"></script>
+    <!-- Load XYZ / MAPP stylesheet and library. -->
+    <!--<link rel="stylesheet" href="{{dir}}/public/css/mapp.css" /> not needed here -->
+    <link rel="stylesheet" href="{{dir}}/public/css/ui.css" />
+    <script type="module" src="{{dir}}/public/js/lib/mapp.js" defer></script>
+    <script type="module" src="{{dir}}/public/js/lib/ui.js" defer></script>
+    <script type="module" src="{{dir}}/public/js/tests/_mapp.test.js" defer></script>
+    <style>
+
+      body {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+
+
+      /* inside viewport */
+      .viewport {
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-base);
+
+        /* begin role assignment specific layout */
+        .split-screen {
+          min-height: 500px;
+          padding: 1em;
+          margin: 1em;
+          border: solid 1px var(--color-border);
+          border-radius: 10px;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+
+          /* indent on nested lists */
+          ul {
+            padding-left: 0; 
+
+            ul {
+              padding-left: 2em;
+            }
+
+            button.material-symbols-outlined.disabled {
+                color: var(--color-font-mid);
+            }
+              
+          }
+
+          .inline-flex {
+            display: inline-flex;
+            border-bottom: solid 1px var(--color-border);
+            padding: 0.2em;
+            width: 100%;
+            /*border-radius: 3px;*/
+
+            &.granted {
+              /*label span.material-symbols-outlined {
+                color: var(--color-info);
+              }*/
+              background-color: rgb(from var(--color-info) r g b / 0.1);
+              border-radius: 3px;
+            }
+          }
+
+          .expandable {
+            button.material-symbols-outlined.caret::after {
+              content: 'arrow_right';
+              color: var(--color-font);
+            }
+
+            & > div > label {
+              font-weight: bold;
+            }
+
+            & ul {
+              opacity: 0;
+              max-height: 0;
+              transition: max-height 0.3s ease, opacity 0.3s ease;
+            }
+
+            &.expanded {
+ 
+              & > div > button.material-symbols-outlined.caret::after {
+                content: 'arrow_drop_down';
+                color: var(--color-font);
+              }
+
+              & > ul {
+                opacity: 1;
+                max-height: 10em;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+              }
+            }
+          }
+        }
+        /* end role assignment specific layout */
+      }
+
+      /* end viewport rule */
+    }
+  }
+
+  /* rules for mobile */
+  @media only screen and (max-width: 700px) {
+    body {
+      margin: 0;
+    }
+    .desktop-only {
+      display: none !important;
+    }
+  }
+
+</style>
+
+<body>
+    <div class="viewport">
+        <div class="split-screen">
+        </div>
+    </div>
+    <script type="module">
+        console.log(`MAPP v${mapp.version}`);
+        /* Set the maxWidth for mobile responsive display. */
+        mapp.utils.mobile(765);
+
+        /* test user */
+        const user = {
+          email: 'my_email@my_email.com',
+          roles: ['global', 'europe.west', 'uk.london.piccadilly', 'france.paris']
+        }
+
+        const tree = {
+          global: {},
+          europe: {
+            east: {},
+            west: {}
+          },
+          uk: {
+            london: {
+              piccadilly: {}
+            },
+            brighton: {},
+            leeds: {}
+          },
+          france: {
+            lille: {},
+            paris: {},
+            nice: {}
+          }
+        };
+
+        const split_screen = document.querySelector('.split-screen');
+
+        const listDOM = listHierarchy(tree, user);
+
+        const container = mapp.utils.html.node`<div>${listDOM}`;
+
+        mapp.utils.render(split_screen, container);
+
+
+        function listHierarchy(obj, user) {
+          const ul = mapp.utils.html.node`<ul>`;
+          // Use Object.entries to get [key, value] pairs
+          for (const [key, value] of Object.entries(obj)) {
+            // Check if the value is an object with inner content
+            if (typeof value === 'object' && Object.keys(value).length > 0) {
+              // recurse into that object
+              const sublist = listHierarchy(value, user);
+              ul.append(listItem({ value: key, content: sublist, user }));
+            } else {
+              // "leaf" value
+              const li = listItem({ value: key, user });
+              ul.append(li);
+            }
+          }
+
+          return ul;
+        }
+
+        function listItem(params) {
+
+          const value = params.value;
+          const content = params.content;
+
+          const roleSet = new Set();
+
+          for(const role of params.user.roles) {
+            role.split('.').map(item => roleSet.add(item));
+          }
+
+          const checked = roleSet.has(params.value);
+
+          const chkbox = mapp.ui.elements.chkbox({ label: value, checked });
+
+          if(!content) {
+            return mapp.utils.html.node`<li>
+            <div class="${'inline-flex' + (checked ? ` granted` : ``) }">
+            <button class="disabled material-symbols-outlined notranslate">shield_person</button>
+            ${chkbox}`;
+          }
+
+          const li = mapp.utils.html.node`<li class="expandable">
+          <div class="${'inline-flex' + (checked ? ` granted` : ``) }">
+          <button class="material-symbols-outlined notranslate caret" onclick=${(e) => {
+            li.classList.toggle('expanded');
+          }}></button>
+          ${chkbox}
+          </div>
+          ${content}`;
+
+          return li;
+
+        }
+
+
+
+</script>
+</body>
+</head>
