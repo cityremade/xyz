@@ -50,7 +50,7 @@
         /* end header for the split section */
 
         /* begin role assignment specific layout */
-        .split-screen {
+        .role-assignment {
           min-height: 500px;
           padding: 1em;
           margin: 1em;
@@ -59,6 +59,20 @@
           display: grid;
           grid-gap: 1em;
           grid-template-columns: repeat(2, 1fr);
+
+          .role-hierarchy {
+            /* for the role hierarchy target */
+          }
+
+          .role-preview {
+            ul.preview-list {
+              li {
+                border-bottom: solid 1px var(--color-border);
+                padding: 1em 0.5em;
+                font-family: monospace;
+              }
+            }
+          }
 
           /* indent on nested lists */
           ul {
@@ -70,7 +84,7 @@
 
             button.material-symbols-outlined.disabled {
                 color: var(--color-font-mid);
-                /*cursor: default;*/
+                cursor: default;
             }
               
           }
@@ -148,7 +162,9 @@
           <h2>Role Hierarchy</h2>
           <h2>Assigned Roles Summary</h2>
         </div>
-        <div class="split-screen">
+        <div class="role-assignment">
+          <div class="role-hierarchy"></div>
+          <div class="role-preview">here's preview</div>
         </div>
     </div>
     <script type="module">
@@ -188,13 +204,22 @@
           }
         };
 
-        const split_screen = document.querySelector('.split-screen');
-
         const listDOM = listHierarchy(tree, user);
 
-        const container = mapp.utils.html.node`<div>${listDOM}`;
+        mapp.utils.render(document.querySelector('.role-hierarchy'), mapp.utils.html.node`<div>${listDOM}`);
 
-        mapp.utils.render(split_screen, container);
+        mapp.utils.render(document.querySelector('.role-preview'), rolePreview(user));
+
+
+        function rolePreview(user) {
+          //const ul = mapp.utils.html.node`<ul>`;
+          const items = [];
+          for(const role of user.roles) {
+            items.push(mapp.utils.html`<li>${role}</li>`)
+          }
+
+          return mapp.utils.html`<ul class="preview-list">${items}`;
+        }
 
 
         function listHierarchy(obj, user) {
@@ -233,8 +258,12 @@
             label: value, 
             val: value,
             onchange: (state, val)=> {
-              chkbox.closest('li').classList.toggle('granted');
-              role_change(chkbox, value);
+              chkbox.closest('div').classList.toggle('granted');
+              role_change({
+                element: chkbox, 
+                role: value, 
+                checked: state 
+              });
             },
             checked
           });
@@ -259,11 +288,15 @@
 
         }
 
+        /* element, value, checked */
+        function role_change(params) {
 
-        function role_change(element, value) {
+          const element = params.element;
+          const role = params.role;
+          const checked = params.checked;
 
           // add current role
-          const role_list = [value];
+          const role_list = [role];
 
           // current list item
           const current_li = element.closest('li');
@@ -279,10 +312,58 @@
             upper_li = upper_li.closest('ul').closest('li');
           }
 
-          // final contatenated role
-          console.log(['Roles', role_list.join('.')]);
+          // update with final contatenated role
+          update_user({
+            checked: params.checked,
+            user, 
+            role: role_list.join('.')
+          });
 
         }
+
+
+        /* user, role, checked */
+        function update_user(params) {
+
+          if(params.checked) {
+            params.user.roles.push(params.role);
+          } else {
+            const idx = params.user.roles.indexOf(params.role);
+            if(idx > -1) params.user.roles.splice(idx, 1);
+          }
+
+          console.log(params.user.roles);
+
+          console.log('update state of hierarchy');
+
+          // update hierarchy DOM based on the new roles
+          updateListDOM(params.user, listDOM);
+
+        }
+
+
+        function updateListDOM(user, document_fragment) {
+          const roleSet = new Set();
+
+          // get a set of unique roles
+          for(const role of user.roles) {
+            role.split('.').map(item => roleSet.add(item));
+          }
+
+          // get all list items
+          const all_items = document_fragment.querySelectorAll('li');
+
+          // set state and classes where needed - granted class and checked checkbox
+          for(const li of all_items) {
+            li.querySelector('input').checked = roleSet.has(li.dataset.id);
+            roleSet.has(li.dataset.id) ? li.querySelector('div').classList.add('granted') : li.querySelector('div').classList.remove('granted');
+          }
+
+          // redraw the preview section
+          mapp.utils.render(document.querySelector('.role-preview'), rolePreview(user));
+
+        }
+
 
 
 
