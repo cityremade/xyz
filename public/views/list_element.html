@@ -32,6 +32,23 @@
         height: 100%;
         background-color: var(--color-base);
 
+        /* header for the split section */
+
+        .split-screen-header {
+          padding: 1em;
+          margin: 1em;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-gap: 1em;
+
+          header {
+            grid-column: 1 / span 2;
+            border-bottom: solid 1px var(--color-border);
+          }
+        }
+
+        /* end header for the split section */
+
         /* begin role assignment specific layout */
         .split-screen {
           min-height: 500px;
@@ -40,6 +57,7 @@
           border: solid 1px var(--color-border);
           border-radius: 10px;
           display: grid;
+          grid-gap: 1em;
           grid-template-columns: repeat(2, 1fr);
 
           /* indent on nested lists */
@@ -52,6 +70,7 @@
 
             button.material-symbols-outlined.disabled {
                 color: var(--color-font-mid);
+                /*cursor: default;*/
             }
               
           }
@@ -61,12 +80,8 @@
             border-bottom: solid 1px var(--color-border);
             padding: 0.2em;
             width: 100%;
-            /*border-radius: 3px;*/
 
             &.granted {
-              /*label span.material-symbols-outlined {
-                color: var(--color-info);
-              }*/
               background-color: rgb(from var(--color-info) r g b / 0.1);
               border-radius: 3px;
             }
@@ -83,8 +98,10 @@
             }
 
             & ul {
+              /* list closed */
               opacity: 0;
               max-height: 0;
+              visibility: hidden;
               transition: max-height 0.3s ease, opacity 0.3s ease;
             }
 
@@ -96,8 +113,11 @@
               }
 
               & > ul {
+                /* list open */
                 opacity: 1;
-                max-height: 10em;
+                max-height: unset;
+                height: auto;
+                visibility: visible;
                 transition: max-height 0.3s ease, opacity 0.3s ease;
               }
             }
@@ -124,6 +144,12 @@
 
 <body>
     <div class="viewport">
+        
+        <div class="split-screen-header">
+          <header><h1>Role Assignment</h1></header>
+          <h2>Role Hierarchy</h2>
+          <h2>Assigned Roles Summary</h2>
+        </div>
         <div class="split-screen">
         </div>
     </div>
@@ -144,9 +170,11 @@
             east: {},
             west: {}
           },
+          germany: {},
           uk: {
             london: {
-              piccadilly: {}
+              piccadilly: {},
+              shoreditch: {}
             },
             brighton: {},
             leeds: {}
@@ -155,6 +183,10 @@
             lille: {},
             paris: {},
             nice: {}
+          },
+          spain: {
+            madrid: {},
+            barcelona: {}
           }
         };
 
@@ -168,7 +200,7 @@
 
 
         function listHierarchy(obj, user) {
-          const ul = mapp.utils.html.node`<ul>`;
+          const ul = mapp.utils.html.node`<ul class="main-list">`;
           // Use Object.entries to get [key, value] pairs
           for (const [key, value] of Object.entries(obj)) {
             // Check if the value is an object with inner content
@@ -199,16 +231,24 @@
 
           const checked = roleSet.has(params.value);
 
-          const chkbox = mapp.ui.elements.chkbox({ label: value, checked });
+          const chkbox = mapp.ui.elements.chkbox({ 
+            label: value, 
+            val: value,
+            onchange: (state, val)=> {
+              chkbox.closest('li').classList.toggle('granted');
+              role_change(chkbox, value);
+            },
+            checked
+          });
 
           if(!content) {
-            return mapp.utils.html.node`<li>
+            return mapp.utils.html.node`<li data-id=${value}>
             <div class="${'inline-flex' + (checked ? ` granted` : ``) }">
             <button class="disabled material-symbols-outlined notranslate">shield_person</button>
             ${chkbox}`;
           }
 
-          const li = mapp.utils.html.node`<li class="expandable">
+          const li = mapp.utils.html.node`<li class="expandable" data-id=${value}>
           <div class="${'inline-flex' + (checked ? ` granted` : ``) }">
           <button class="material-symbols-outlined notranslate caret" onclick=${(e) => {
             li.classList.toggle('expanded');
@@ -218,6 +258,31 @@
           ${content}`;
 
           return li;
+
+        }
+
+
+        function role_change(element, value) {
+
+          // add current role
+          const role_list = [value];
+
+          // current list item
+          const current_li = element.closest('li');
+
+          // upper list item
+          let upper_li = current_li.closest('ul').closest('li');
+
+          // from each list item up to level of main-list
+          while (upper_li && !upper_li.classList.contains('main-list')) {
+            // get data id which is information on role
+            role_list.unshift(upper_li.dataset.id);
+            // reassign upper list item
+            upper_li = upper_li.closest('ul').closest('li');
+          }
+
+          // final contatenated role
+          console.log(['Roles', role_list.join('.')]);
 
         }
 
