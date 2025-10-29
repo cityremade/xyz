@@ -142,19 +142,19 @@
 
       /* end viewport rule */
 
-  /* rules for mobile */
-  @media only screen and (max-width: 700px) {
-    body {
-      margin: 0;
-    }
-    .desktop-only {
-      display: none !important;
-    }
-  }
+      /* rules for mobile */
+      @media only screen and (max-width: 700px) {
+        body {
+          margin: 0;
+        }
+        .desktop-only {
+          display: none !important;
+        }
+      }
 
-</style>
+    </style>
 
-<body>
+  <body>
     <div class="viewport">
         
         <div class="split-screen-header">
@@ -175,32 +175,33 @@
         /* test user */
         const user = {
           email: 'my_email@my_email.com',
-          roles: ['global', 'europe.west', 'uk.london.piccadilly', 'france.paris']
+          roles: ['europe.west', 'france.paris', 'global', 'uk.london.piccadilly']
         }
 
+        /* test role tree */
         const tree = {
-          global: {},
           europe: {
             east: {},
             west: {}
           },
+          france: {
+            lille: {},
+            nice: {},
+            paris: {}
+          },
           germany: {},
+          global: {},
+          spain: {
+            barcelona: {},
+            madrid: {}
+          },
           uk: {
+            brighton: {},
+            leeds: {},
             london: {
               piccadilly: {},
               shoreditch: {}
-            },
-            brighton: {},
-            leeds: {}
-          },
-          france: {
-            lille: {},
-            paris: {},
-            nice: {}
-          },
-          spain: {
-            madrid: {},
-            barcelona: {}
+            }
           }
         };
 
@@ -211,8 +212,8 @@
         mapp.utils.render(document.querySelector('.role-preview'), rolePreview(user));
 
 
+        /* draws role preview section content */
         function rolePreview(user) {
-          //const ul = mapp.utils.html.node`<ul>`;
           const items = [];
           for(const role of user.roles) {
             items.push(mapp.utils.html`<li>${role}</li>`)
@@ -222,6 +223,7 @@
         }
 
 
+        /* creates the list hierarchy DOM */
         function listHierarchy(obj, user) {
           const ul = mapp.utils.html.node`<ul class="main-list">`;
           // Use Object.entries to get [key, value] pairs
@@ -241,6 +243,7 @@
           return ul;
         }
 
+        /* params: user, content, value */
         function listItem(params) {
 
           const value = params.value;
@@ -258,8 +261,11 @@
             label: value, 
             val: value,
             onchange: (state, val)=> {
+
               chkbox.closest('div').classList.toggle('granted');
+
               role_change({
+                user: params.user, 
                 element: chkbox, 
                 role: value, 
                 checked: state 
@@ -288,12 +294,13 @@
 
         }
 
-        /* element, value, checked */
+        /* params: user, element, value, checked */
         function role_change(params) {
 
           const element = params.element;
           const role = params.role;
           const checked = params.checked;
+          const user = params.user;
 
           // add current role
           const role_list = [role];
@@ -307,31 +314,38 @@
           // from each list item up to level of main-list
           while (upper_li && !upper_li.classList.contains('main-list')) {
             // get data id which is information on role
-            role_list.unshift(upper_li.dataset.id);
+            role_list.unshift(upper_li.dataset.id)
             // reassign upper list item
             upper_li = upper_li.closest('ul').closest('li');
           }
 
+          // this constructs the role
+          const changed_role = role_list.join('.');
+
+          //console.log([ checked, changed_role ]); // is this correct alongside checkboxes ?
+
+          if(checked) {
+            // add this to array
+            user.roles.push(changed_role);
+          } else {
+            // filter out everything that contains this role
+            user.roles = user.roles.filter(role => {
+              return !role.includes(changed_role);
+            })
+          }
+
           // update with final contatenated role
           update_user({
-            checked: params.checked,
-            user, 
-            role: role_list.join('.')
+            user
           });
 
         }
 
 
-        /* user, role, checked */
+        /* params: user */
         function update_user(params) {
 
-          if(params.checked) {
-            params.user.roles.push(params.role);
-          } else {
-            const idx = params.user.roles.indexOf(params.role);
-            if(idx > -1) params.user.roles.splice(idx, 1);
-          }
-
+          // user update will come here 
           console.log(params.user.roles);
 
           console.log('update state of hierarchy');
@@ -340,8 +354,8 @@
           updateListDOM(params.user, listDOM);
 
         }
-
-
+        
+        /* updates hierarchy DOM after change */
         function updateListDOM(user, document_fragment) {
           const roleSet = new Set();
 
