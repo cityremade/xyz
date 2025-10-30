@@ -32,112 +32,121 @@
         height: 100%;
         background-color: var(--color-base);
 
-        /* header for the split section */
+        /* outer container for roles ui */
+        .roles-management {
+          display:flex; 
+          flex-direction: column; 
+          width: 100%; 
+          height: 100%;
 
-        .split-screen-header {
-          padding: 1em;
-          margin: 1em;
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          grid-gap: 1em;
+          /* header for the split section */
+          .split-screen-header {
+            padding: 1em;
+            margin: 1em;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 1em;
 
-          header {
-            grid-column: 1 / span 2;
-            border-bottom: solid 1px var(--color-border);
-          }
-        }
-
-        /* end header for the split section */
-
-        /* begin role assignment specific layout */
-        .role-assignment {
-          min-height: 500px;
-          padding: 1em;
-          margin: 1em;
-          border: solid 1px var(--color-border);
-          border-radius: 10px;
-          display: grid;
-          grid-gap: 1em;
-          grid-template-columns: repeat(2, 1fr);
-
-          .role-hierarchy {
-            /* for the role hierarchy target */
+            header {
+              grid-column: 1 / span 2;
+              border-bottom: solid 1px var(--color-border);
+            }
           }
 
-          .role-preview {
-            ul.preview-list {
-              li {
-                border-bottom: solid 1px var(--color-border);
-                padding: 1em 0.5em;
-                font-family: monospace;
+          /* end header for the split section */
+
+          /* begin role assignment specific layout */
+          .role-assignment {
+            max-height: 600px;
+            padding: 1em;
+            margin: 1em;
+            border: solid 1px var(--color-border);
+            border-radius: 10px;
+            display: grid;
+            grid-gap: 1em;
+            grid-template-columns: repeat(2, 1fr);
+
+            .role-hierarchy {
+              /* for the role hierarchy target */
+              overflow-y: auto;
+            }
+
+            .role-preview {
+              overflow-y: auto;
+              ul.preview-list {
+                li {
+                  border-bottom: solid 1px var(--color-border);
+                  padding: 1em 0.5em;
+                  font-family: monospace;
+                }
               }
             }
-          }
 
-          /* indent on nested lists */
-          ul {
-            padding-left: 0; 
-
+            /* indent on nested lists */
             ul {
-              padding-left: 2em;
-            }
+              padding-left: 0; 
 
-            button.material-symbols-outlined.disabled {
+              ul {
+                padding-left: 2em;
+              }
+
+              button.material-symbols-outlined.disabled {
                 color: var(--color-font-mid);
                 cursor: default;
+              }  
             }
+
+            .inline-flex {
+              display: inline-flex;
+              border-bottom: solid 1px var(--color-border);
+              padding: 0.2em;
+              width: 100%;
+
+              &.granted {
+                background-color: rgb(from var(--color-info) r g b / 0.1);
+                border-radius: 3px;
+              }
+            }
+
+            .expandable {
               
-          }
-
-          .inline-flex {
-            display: inline-flex;
-            border-bottom: solid 1px var(--color-border);
-            padding: 0.2em;
-            width: 100%;
-
-            &.granted {
-              background-color: rgb(from var(--color-info) r g b / 0.1);
-              border-radius: 3px;
-            }
-          }
-
-          .expandable {
-            button.material-symbols-outlined.caret::after {
-              content: 'arrow_right';
-              color: var(--color-font);
-            }
-
-            & > div > label {
-              font-weight: bold;
-            }
-
-            & ul {
-              /* list closed */
-              opacity: 0;
-              max-height: 0;
-              visibility: hidden;
-              transition: max-height 0.3s ease, opacity 0.3s ease;
-            }
-
-            &.expanded {
- 
-              & > div > button.material-symbols-outlined.caret::after {
-                content: 'arrow_drop_down';
+              button.material-symbols-outlined.caret::after {
+                content: 'arrow_right';
                 color: var(--color-font);
               }
 
-              & > ul {
-                /* list open */
-                opacity: 1;
-                max-height: unset;
-                height: auto;
-                visibility: visible;
+              & > div > label {
+                font-weight: bold;
+              }
+
+              & ul {
+                /* list closed */
+                opacity: 0;
+                max-height: 0;
+                visibility: hidden;
                 transition: max-height 0.3s ease, opacity 0.3s ease;
+              }
+
+              &.expanded {
+
+                & > div > button.material-symbols-outlined.caret::after {
+                  content: 'arrow_drop_down';
+                  color: var(--color-font);
+                }
+
+                & > ul {
+                  /* list open */
+                  opacity: 1;
+                  max-height: unset;
+                  height: auto;
+                  visibility: visible;
+                  transition: max-height 0.3s ease, opacity 0.3s ease;
+                }
               }
             }
           }
+          /* end role assignment specific layout */
         }
-        /* end role assignment specific layout */
       }
 
       /* end viewport rule */
@@ -155,60 +164,40 @@
     </style>
 
   <body>
-    <div class="viewport">
-        
-        <div class="split-screen-header">
+    <div class="viewport"></div>
+    <script type="module">
+        console.log(`MAPP v${mapp.version}`);
+        /* Set the maxWidth for mobile responsive display. */
+        mapp.utils.mobile(765);
+
+        mapp.host = document.head.dataset.dir;
+
+        // creates document fragment to embed ui
+        const container = mapp.utils.html`<div class="roles-management">
+          <div class="split-screen-header">
           <header><h1>Role Assignment</h1></header>
           <h2>Role Hierarchy</h2>
           <h2>Assigned Roles Summary</h2>
         </div>
         <div class="role-assignment">
           <div class="role-hierarchy"></div>
-          <div class="role-preview">here's preview</div>
-        </div>
-    </div>
-    <script type="module">
-        console.log(`MAPP v${mapp.version}`);
-        /* Set the maxWidth for mobile responsive display. */
-        mapp.utils.mobile(765);
+          <div class="role-preview"></div>
+        </div></div>`;
 
-        /* test user */
-        const user = {
-          email: 'my_email@my_email.com',
-          roles: ['europe.west', 'france.paris', 'global', 'uk.london.piccadilly']
-        }
+        mapp.utils.render(document.querySelector('.viewport'), container);
 
-        /* test role tree */
-        const tree = {
-          europe: {
-            east: {},
-            west: {}
-          },
-          france: {
-            lille: {},
-            nice: {},
-            paris: {}
-          },
-          germany: {},
-          global: {},
-          spain: {
-            barcelona: {},
-            madrid: {}
-          },
-          uk: {
-            brighton: {},
-            leeds: {},
-            london: {
-              piccadilly: {},
-              shoreditch: {}
-            }
-          }
-        };
+         /* Get the test user from the cookie */
+        const user = await mapp.utils.xhr(`${mapp.host}/api/user/cookie`);
+
+        const tree = await mapp.utils.xhr(`${mapp.host}/api/workspace/roles?tree=true`);
+
+        console.log(tree);
 
         const listDOM = listHierarchy(tree, user);
 
+        /* create list content */
         mapp.utils.render(document.querySelector('.role-hierarchy'), mapp.utils.html.node`<div>${listDOM}`);
-
+        /* create preview windown content */
         mapp.utils.render(document.querySelector('.role-preview'), rolePreview(user));
 
 
@@ -243,7 +232,7 @@
           return ul;
         }
 
-        /* params: user, content, value */
+        /* creates role item; params: user, content, value */
         function listItem(params) {
 
           const value = params.value;
@@ -260,11 +249,11 @@
           const chkbox = mapp.ui.elements.chkbox({ 
             label: value, 
             val: value,
-            onchange: (state, val)=> {
+            onchange: async (state, val)=> {
 
               chkbox.closest('div').classList.toggle('granted');
 
-              role_change({
+              await role_change({
                 user: params.user, 
                 element: chkbox, 
                 role: value, 
@@ -294,8 +283,8 @@
 
         }
 
-        /* params: user, element, value, checked */
-        function role_change(params) {
+        /* runs inside checkbox change event, updates role; params: user, element, value, checked */
+        async function role_change(params) {
 
           const element = params.element;
           const role = params.role;
@@ -322,8 +311,6 @@
           // this constructs the role
           const changed_role = role_list.join('.');
 
-          //console.log([ checked, changed_role ]); // is this correct alongside checkboxes ?
-
           if(checked) {
             // add this to array
             user.roles.push(changed_role);
@@ -335,27 +322,27 @@
           }
 
           // update with final contatenated role
-          update_user({
+          await update_user({
             user
           });
 
         }
 
+        /* makes updates to user; params: user */
+        async function update_user(params) {
+          
+          await updateUser({
+            email: params.user.email,
+            roles: params.user.roles
+          });
 
-        /* params: user */
-        function update_user(params) {
-
-          // user update will come here 
-          console.log(params.user.roles);
-
-          console.log('update state of hierarchy');
-
-          // update hierarchy DOM based on the new roles
+          /* update hierarchy DOM based on the new roles */
           updateListDOM(params.user, listDOM);
 
         }
         
-        /* updates hierarchy DOM after change */
+        /* updates hierarchy DOM after change; user and document fragment to update */
+        /* handled separately from creation to prevent lists from closing by default */
         function updateListDOM(user, document_fragment) {
           const roleSet = new Set();
 
@@ -376,6 +363,17 @@
           // redraw the preview section
           mapp.utils.render(document.querySelector('.role-preview'), rolePreview(user));
 
+        }
+
+        /* updates field for user entry; params: user.email and user.roles as request body */
+        async function updateUser(params) {
+          await fetch(`${mapp.host}/api/user/update`, {
+            method: "POST",
+            body: JSON.stringify(params),
+            headers: {
+              "Content-type": "application/json",
+            },
+          });
         }
 
 
